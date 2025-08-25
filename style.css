@@ -1,6 +1,5 @@
 /* Interフォントのインポート */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-
 body {
     font-family: 'Inter', sans-serif;
     background-color: #f3f4f6; /* ワークフロー画面の背景色 */
@@ -13,7 +12,6 @@ body {
     box-sizing: border-box; /* パディングが幅に影響しないように */
     color: #333; /* デフォルトの文字色 */
 }
-
 /* カスタムのメッセージボックススタイル */
 .message-box {
     position: fixed;
@@ -39,7 +37,6 @@ body {
 .message-box.error {
     background-color: #dc3545; /* エラーメッセージの色 */
 }
-
 /* ログインフォームとワークフロー画面の共通コンテナスタイル */
 .app-container {
     background-color: #ffffff;
@@ -82,7 +79,6 @@ body {
     from { opacity: 0; transform: translateY(20px); }
     to { opacity: 1; transform: translateY(0); }
 }
-
 /* Custom styles for the date input to show calendar icon */
 input[type="date"]::-webkit-calendar-picker-indicator {
     background: transparent;
