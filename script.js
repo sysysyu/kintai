@@ -645,11 +645,6 @@ function loadWorkflowContent(workflowId) {
                                 送信確認
                             </button>
                         </div>
-                        <div class="flex justify-center mt-4">
-                            <button type="button" class="back-to-workflow-btn px-6 py-3 bg-gray-600 text-white font-semibold rounded-md shadow-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition duration-300 ease-in-out">
-                                ワークフローに戻る
-                            </button>
-                        </div>
                     </form>
                 </div>
             `;
