@@ -191,6 +191,13 @@ function renderLoginScreen() {
                     >
                         ログイン
                     </button>
+                    <button
+                        type="button"
+                        id="createAccountBtn"
+                        class="w-full flex justify-center py-2.5 px-4 mt-4 border border-transparent rounded-lg shadow-sm text-lg font-semibold text-white bg-gray-600 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition duration-200 ease-in-out transform hover:-translate-y-0.5 hover:shadow-lg focus:scale-95"
+                    >
+                        新規アカウント作成
+                    </button>
                 </div>
             </form>
         </div>
@@ -200,28 +207,127 @@ function renderLoginScreen() {
     const loginIdInput = document.getElementById('loginId');
     const passwordInput = document.getElementById('password');
     const errorMessageDiv = document.getElementById('errorMessage');
+    const createAccountBtn = document.getElementById('createAccountBtn');
+
+    // ログイン処理のシミュレーション
+    const validLoginId = 'jqit@gmail.com';
+    const validPassword = 'password';
 
     loginForm.addEventListener('submit', function(event) {
         event.preventDefault(); // フォームのデフォルト送信を防止
 
         errorMessageDiv.textContent = ''; // エラーメッセージをクリア
 
-        const loginId = loginIdInput.value;
-        const password = passwordInput.value;
+        const loginId = loginIdInput.value.trim();
+        const password = passwordInput.value.trim();
 
-        // ログイン処理のシミュレーション
-        if (loginId === 'jqit@gmail.com' && password === 'password') {
-            showMessage('ログイン成功！ワークフロー画面へ遷移します。', 'success');
+        // ログインIDとパスワードの有効性をチェック
+        const isLoginIdValid = loginId === validLoginId;
+        const isPasswordValid = password === validPassword;
+        const isLoginIdEmpty = loginId === '';
+        const isPasswordEmpty = password === '';
+
+        let errorMessage = '';
+
+        if (isLoginIdEmpty && isPasswordEmpty) {
+            errorMessage = 'メールアドレスとパスワードを入力してください。';
+        } else if (isLoginIdEmpty) {
+            errorMessage = 'メールアドレスが入力されていません。メールアドレスを入力してください。';
+        } else if (isPasswordEmpty) {
+            errorMessage = 'パスワードが入力されていません。パスワードを入力してください。';
+        } else if (isLoginIdValid && !isPasswordValid) {
+            errorMessage = 'パスワードが無効です。';
+        } else if (!isLoginIdValid && isPasswordValid) {
+            errorMessage = 'メールアドレスが無効です。有効なメールアドレスを入力してください。';
+        } else if (!isLoginIdValid && !isPasswordValid) {
+            errorMessage = 'メールアドレスとパスワードの両方が無効です。';
+        }
+
+        // エラーメッセージの表示またはログイン成功処理
+        if (errorMessage) {
+            errorMessageDiv.textContent = errorMessage;
+            showMessage(errorMessage, 'error');
+        } else {
+            // 両方有効な場合
+            showMessage('ログイン成功！ワークフロー申請画面へ遷移します。', 'success');
             setTimeout(() => {
                 renderWorkflowScreen();
             }, 1000); // メッセージ表示後に遷移
-        } else {
-            const errorMessage = 'ログインIDまたはパスワードが正しくありません。';
-            errorMessageDiv.textContent = errorMessage;
-            showMessage(errorMessage, 'error');
         }
     });
+
+    createAccountBtn.addEventListener('click', () => {
+        renderCreateAccountScreen();
+    });
 }
+
+/**
+ * 新規アカウント作成画面をレンダリングする関数
+ */
+function renderCreateAccountScreen() {
+    appContainer.classList.add('max-w-md');
+    appContainer.classList.add('p-8');
+    appContainer.classList.remove('max-w-screen-lg');
+    appContainer.classList.remove('p-6');
+
+    appContainer.innerHTML = `
+        <div class="create-account-content">
+            <h2 class="text-3xl font-bold text-center mb-8 text-gray-800">新規アカウント作成</h2>
+            <div id="createAccountErrorMessage" class="text-red-600 text-center mb-6 font-medium h-6"></div>
+            <form id="createAccountForm" class="space-y-6">
+                <div>
+                    <label for="newLoginId" class="block text-sm font-medium text-gray-700 mb-1">ログインID:</label>
+                    <input type="text" id="newLoginId" name="newLoginId" required
+                        class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 placeholder-gray-500 text-base focus:outline-none transition duration-150 ease-in-out">
+                </div>
+                <div>
+                    <label for="newPassword" class="block text-sm font-medium text-gray-700 mb-1">パスワード:</label>
+                    <input type="password" id="newPassword" name="newPassword" required
+                        class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 placeholder-gray-500 text-base focus:outline-none transition duration-150 ease-in-out">
+                </div>
+                <div>
+                    <button type="submit"
+                        class="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-lg font-semibold text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-200 ease-in-out transform hover:-translate-y-0.5 hover:shadow-lg focus:scale-95">
+                        アカウントを作成する
+                    </button>
+                    <button type="button" id="backToLoginBtn"
+                        class="w-full flex justify-center py-2.5 px-4 mt-4 border border-transparent rounded-lg shadow-sm text-lg font-semibold text-white bg-gray-600 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition duration-200 ease-in-out transform hover:-translate-y-0.5 hover:shadow-lg focus:scale-95">
+                        ログイン画面に戻る
+                    </button>
+                </div>
+            </form>
+        </div>
+    `;
+
+    const createAccountForm = document.getElementById('createAccountForm');
+    const newLoginIdInput = document.getElementById('newLoginId');
+    const newPasswordInput = document.getElementById('newPassword');
+    const createAccountErrorMessageDiv = document.getElementById('createAccountErrorMessage');
+    const backToLoginBtn = document.getElementById('backToLoginBtn');
+
+    createAccountForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        createAccountErrorMessageDiv.textContent = '';
+
+        if (!newLoginIdInput.value.trim() || !newPasswordInput.value.trim()) {
+            createAccountErrorMessageDiv.textContent = 'すべての項目を入力してください。';
+            showMessage('すべての項目を入力してください。', 'error');
+            return;
+        }
+
+        // ここでアカウント作成処理を実装 (今回はシミュレーション)
+        console.log('アカウント作成成功 (シミュレーション)');
+        showMessage('アカウントが作成されました！ログイン画面に戻ります。', 'success');
+        setTimeout(() => {
+            renderLoginScreen();
+        }, 1000);
+    });
+
+    backToLoginBtn.addEventListener('click', () => {
+        renderLoginScreen();
+    });
+}
+
 
 /**
  * ワークフロー画面をレンダリングする関数
@@ -470,128 +576,16 @@ function loadWorkflowContent(workflowId) {
                         </div>
 
                         <div class="flex justify-center mt-6">
-                            <button type="button" id="submitButton_attendance" class="px-6 py-3 bg-green-600 text-white font-semibold rounded-md shadow-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition duration-300 ease-in-out">
+                            <button type="button" id="submitButton_attendance"
+                                    class="px-6 py-3 bg-green-600 text-white font-semibold rounded-md shadow-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition duration-300 ease-in-out">
                                 送信確認
                             </button>
                         </div>
                     </form>
                 </div>
             `;
-            // 勤怠連絡フォームのJSロジック
-            document.getElementById('dynamicWorkflowArea').innerHTML = contentHtml;
-            const attendanceForm = document.getElementById('attendanceForm');
-            const reasonTypeRadios = attendanceForm.querySelectorAll('input[name="reasonType"]');
-            const lateTimeSection = document.getElementById('lateTimeSection');
-            const earlyLeaveTimeSection = document.getElementById('earlyLeaveTimeSection');
-            const earlyLeaveTimeInput = document.getElementById('earlyLeaveTime');
-            const substituteDateSection = document.getElementById('substituteDateSection');
-            const submitButton_attendance = document.getElementById('submitButton_attendance');
-
-            // 遅刻時間セレクトボックスのオプションを生成
-            const lateTimeSelect = document.getElementById('lateTime');
-            for (let i = 1; i <= 60; i++) {
-                const option = document.createElement('option');
-                option.value = i;
-                option.textContent = `${i}分`;
-                lateTimeSelect.appendChild(option);
-            }
-
-            // 事由選択時の表示・非表示制御
-            function updateFormVisibility() {
-                const selectedReason = attendanceForm.querySelector('input[name="reasonType"]:checked').value;
-                lateTimeSection.classList.add('hidden');
-                earlyLeaveTimeSection.classList.add('hidden');
-                substituteDateSection.classList.add('hidden');
-                switch (selectedReason) {
-                    case '3': // 遅刻
-                        lateTimeSection.classList.remove('hidden');
-                        break;
-                    case '4': // 早退
-                        earlyLeaveTimeSection.classList.remove('hidden');
-                        break;
-                    case '1': // 代休
-                        substituteDateSection.classList.remove('hidden');
-                        break;
-                }
-            }
-
-            reasonTypeRadios.forEach(radio => {
-                radio.addEventListener('change', updateFormVisibility);
-            });
-            updateFormVisibility(); // 初回ロード時にも実行
-
-            // フォームのバリデーションと送信確認
-            submitButton_attendance.addEventListener('click', () => {
-                const contactDate = attendanceForm.querySelector('#contactDate').value;
-                const reasonType = attendanceForm.querySelector('input[name="reasonType"]:checked').value;
-                const lateTime = attendanceForm.querySelector('#lateTime').value;
-                const earlyLeaveTime = attendanceForm.querySelector('#earlyLeaveTime').value;
-                const substituteDate = attendanceForm.querySelector('#substituteDate').value;
-                const reason = attendanceForm.querySelector('#reason').value;
-
-                // バリデーション
-                const errors = [];
-                if (!contactDate) {
-                    errors.push('連絡日付は必須です。');
-                }
-                if (reasonType === '3' && !lateTime) {
-                    errors.push('遅刻時間を選択してください。');
-                }
-                if (reasonType === '4' && (!earlyLeaveTime || !/^\d{2}:\d{2}$/.test(earlyLeaveTime))) {
-                    errors.push('有効な早退時間（HH:mm）を入力してください。');
-                }
-                if (reasonType === '1' && !substituteDate) {
-                    errors.push('代休消化日は必須です。');
-                }
-
-                if (errors.length > 0) {
-                    openMessageModal('入力エラー', `<p>以下の項目を確認してください:</p><ul>${errors.map(err => `<li>${err}</li>`).join('')}</ul>`, null, true);
-                    return;
-                }
-                
-                // 確認モーダルの内容を生成
-                let confirmContent = `
-                    <p><strong>連絡日付:</strong> ${contactDate}</p>
-                    <p><strong>事由:</strong> ${attendanceForm.querySelector(`input[name="reasonType"][value="${reasonType}"]`).nextElementSibling.textContent}</p>
-                `;
-                if (reasonType === '3') {
-                    confirmContent += `<p><strong>遅刻時間:</strong> ${lateTime}分</p>`;
-                }
-                if (reasonType === '4') {
-                    confirmContent += `<p><strong>早退時間:</strong> ${earlyLeaveTime}</p>`;
-                }
-                if (reasonType === '1') {
-                    confirmContent += `<p><strong>代休消化日:</strong> ${substituteDate}</p>`;
-                }
-                if (reason) {
-                    confirmContent += `<p><strong>理由:</strong> ${reason}</p>`;
-                }
-
-                openConfirmationModal(
-                    '勤怠連絡の確認',
-                    confirmContent,
-                    () => {
-                        // 送信処理のシミュレーション
-                        const dataToSend = {
-                            contactDate,
-                            reasonType,
-                            lateTime,
-                            earlyLeaveTime,
-                            substituteDate,
-                            reason
-                        };
-                        console.log('勤怠連絡データを送信します:', dataToSend);
-                        // 実際のAPI送信処理はここに記述
-                        // 成功したらメッセージモーダルを表示
-                        openMessageModal('送信成功', '勤怠連絡を送信しました！', () => {
-                            clearFormInputs(attendanceForm);
-                        });
-                    },
-                    () => {
-                        // 修正ボタンが押された場合、何もしない
-                    }
-                );
-            });
+            // Add event listeners for attendance form
+            addAttendanceFormListeners();
             break;
         case 'wf2_purchase': // 定期購入
             contentHtml = `
@@ -638,510 +632,683 @@ function loadWorkflowContent(workflowId) {
                             </div>
                         </div>
                         <div class="flex justify-center space-x-4 mt-6">
-                            <button type="button" id="addCandidateBtn" class="px-6 py-3 bg-blue-600 text-white font-semibold rounded-md shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-300 ease-in-out">
+                            <button type="button" id="addCandidateBtn"
+                                    class="px-6 py-3 bg-blue-600 text-white font-semibold rounded-md shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-300 ease-in-out">
                                 候補数追加
                             </button>
-                            <button type="submit" class="px-6 py-3 bg-green-600 text-white font-semibold rounded-md shadow-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition duration-300 ease-in-out">
+                            <button type="submit"
+                                    class="px-6 py-3 bg-green-600 text-white font-semibold rounded-md shadow-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition duration-300 ease-in-out">
                                 送信確認
+                            </button>
+                        </div>
+                        <div class="flex justify-center mt-4">
+                            <button type="button" class="back-to-workflow-btn px-6 py-3 bg-gray-600 text-white font-semibold rounded-md shadow-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition duration-300 ease-in-out">
+                                ワークフローに戻る
                             </button>
                         </div>
                     </form>
                 </div>
             `;
-            document.getElementById('dynamicWorkflowArea').innerHTML = contentHtml;
-            let candidateCount = 1;
-            const addCandidateBtn = document.getElementById('addCandidateBtn');
-            const routeOptions = document.getElementById('route-options');
-
-            addCandidateBtn.addEventListener('click', () => {
-                candidateCount++;
-                const newCandidateHtml = `
-                    <div class="route-option p-4 border border-dashed border-gray-300 rounded-md mt-4">
-                        <h3 class="text-lg font-semibold mb-2">候補 ${candidateCount}</h3>
-                        <div class="form-group">
-                            <label for="transitStation${candidateCount}">経由駅:</label>
-                            <input type="text" id="transitStation${candidateCount}" name="transitStation[]" class="w-full">
-                        </div>
-                        <div class="form-group">
-                            <label for="commuteTime${candidateCount}">通勤時間:</label>
-                            <select id="commuteTime${candidateCount}" name="commuteTime[]" required class="w-full">
-                                <option value="">選択してください</option>
-                                <option value="15分未満">15分未満</option>
-                                <option value="15分-30分">15分-30分</option>
-                                <option value="30分-1時間">30分-1時間</option>
-                                <option value="1時間以上">1時間以上</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="amount${candidateCount}">金額:</label>
-                            <input type="number" id="amount${candidateCount}" name="amount[]" required class="w-full">
-                        </div>
-                    </div>
-                `;
-                routeOptions.insertAdjacentHTML('beforeend', newCandidateHtml);
-            });
+            // Add event listeners for subscription form
+            addSubscriptionFormListeners();
             break;
         case 'wf3_certificate':
             contentHtml = `
                 <div class="bg-white p-6 sm:p-8 rounded-lg shadow-xl w-full max-w-2xl mx-auto">
-                    <h1 class="text-2xl sm:text-3xl font-bold text-center text-gray-800 mb-6 sm:mb-8">資格申請</h1>
-                    <div id="certificate_successMessage" class="hidden bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
-                        <strong class="font-bold">成功!</strong> <span class="block sm:inline ml-2"></span>
-                    </div>
-                    <div id="certificate_errorMessage" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
-                        <strong class="font-bold">エラー!</strong> <span class="block sm:inline ml-2"></span>
-                    </div>
-                    <div id="certificate_form_screen">
-                        <div class="space-y-6">
-                            <div class="form-group">
-                                <label class="block text-gray-700 text-sm font-bold mb-2">
-                                    資格申請種類選択
-                                </label>
-                                <div class="mt-2 flex flex-wrap gap-x-6">
-                                    <label class="inline-flex items-center">
-                                        <input type="radio" class="form-radio text-indigo-600 rounded-full" name="certificate_applicationType" value="0" checked />
-                                        <span class="ml-2 text-gray-700">0: 取得前申請</span>
-                                    </label>
-                                    <label class="inline-flex items-center">
-                                        <input type="radio" class="form-radio text-indigo-600 rounded-full" name="certificate_applicationType" value="1" />
-                                        <span class="ml-2 text-gray-700">1: 取得後申請</span>
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label for="certificate_name" class="block text-sm font-medium text-gray-700 mb-1">
-                                    資格名称 <span class="text-red-500">*</span>
-                                </label>
-                                <input type="text" id="certificate_name" name="certificate_name" required
-                                    class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                            </div>
-                            <div class="form-group">
-                                <label for="certificate_organization" class="block text-sm font-medium text-gray-700 mb-1">
-                                    資格団体名 <span class="text-red-500">*</span>
-                                </label>
-                                <input type="text" id="certificate_organization" name="certificate_organization" required
-                                    class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                            </div>
-                            <div id="certificate_examDateSection" class="form-group">
-                                <label for="certificate_examDate" class="block text-sm font-medium text-gray-700 mb-1">
-                                    受験日
-                                </label>
-                                <input type="date" id="certificate_examDate" name="certificate_examDate"
-                                    class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                            </div>
-                            <div id="certificate_acquisitionDateSection" class="form-group hidden">
-                                <label for="certificate_acquisitionDate" class="block text-sm font-medium text-gray-700 mb-1">
-                                    取得日
-                                </label>
-                                <input type="date" id="certificate_acquisitionDate" name="certificate_acquisitionDate"
-                                    class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                            </div>
-                            <div id="certificate_proofSection" class="form-group hidden">
-                                <label for="certificate_proofFile" class="block text-sm font-medium text-gray-700 mb-1">
-                                    取得証明書類 (PDF) <span class="text-red-500">*</span>
-                                </label>
-                                <input type="file" id="certificate_proofFile" name="certificate_proofFile" accept="application/pdf" required
-                                    class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
-                            </div>
-                            <div class="flex justify-center mt-6">
-                                <button type="button" id="submitButton_certificate" class="px-6 py-3 bg-green-600 text-white font-semibold rounded-md shadow-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition duration-300 ease-in-out">
-                                    送信確認
-                                </button>
-                            </div>
+                    <h1 class="text-2xl sm:text-3xl font-bold text-gray-800 mb-6 text-center">資格申請</h1>
+                    <form id="certificate-form" class="space-y-6">
+                        <div class="form-group">
+                            <label for="certificateName" class="block text-sm font-medium text-gray-700 mb-1">
+                                資格名 <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" id="certificateName" name="certificateName" required
+                                   class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500 text-base">
                         </div>
-                    </div>
+                        <div class="form-group">
+                            <label for="acquisitionDate" class="block text-sm font-medium text-gray-700 mb-1">
+                                取得日 <span class="text-red-500">*</span>
+                            </label>
+                            <input type="date" id="acquisitionDate" name="acquisitionDate" required
+                                   class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500 text-base">
+                        </div>
+                        <div class="form-group">
+                            <label for="issuingAuthority" class="block text-sm font-medium text-gray-700 mb-1">
+                                発行団体
+                            </label>
+                            <input type="text" id="issuingAuthority" name="issuingAuthority"
+                                   class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500 text-base">
+                        </div>
+                        <div class="form-group">
+                            <label for="notes" class="block text-sm font-medium text-gray-700 mb-1">
+                                備考
+                            </label>
+                            <textarea id="notes" name="notes" rows="4"
+                                      class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500 text-base"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="certificateFile" class="block text-sm font-medium text-gray-700 mb-1">
+                                添付ファイル
+                            </label>
+                            <input type="file" id="certificateFile" name="certificateFile"
+                                   class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                        </div>
+                        <div class="flex justify-center mt-6">
+                            <button type="submit"
+                                    class="px-6 py-3 bg-green-600 text-white font-semibold rounded-md shadow-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition duration-300 ease-in-out">
+                                送信確認
+                            </button>
+                        </div>
+                    </form>
                 </div>
             `;
-            document.getElementById('dynamicWorkflowArea').innerHTML = contentHtml;
-            const certForm = document.getElementById('submitButton_certificate').closest('form');
-            const certTypeRadios = certForm.querySelectorAll('input[name="certificate_applicationType"]');
-            const certExamDateSection = document.getElementById('certificate_examDateSection');
-            const certAcquisitionDateSection = document.getElementById('certificate_acquisitionDateSection');
-            const certProofSection = document.getElementById('certificate_proofSection');
-            const certSubmitBtn = document.getElementById('submitButton_certificate');
-
-            function updateCertFormVisibility() {
-                const selectedType = certForm.querySelector('input[name="certificate_applicationType"]:checked').value;
-                if (selectedType === '0') { // 取得前申請
-                    certExamDateSection.classList.remove('hidden');
-                    certAcquisitionDateSection.classList.add('hidden');
-                    certProofSection.classList.add('hidden');
-                    document.getElementById('certificate_examDate').required = true;
-                    document.getElementById('certificate_acquisitionDate').required = false;
-                    document.getElementById('certificate_proofFile').required = false;
-                } else { // 取得後申請
-                    certExamDateSection.classList.add('hidden');
-                    certAcquisitionDateSection.classList.remove('hidden');
-                    certProofSection.classList.remove('hidden');
-                    document.getElementById('certificate_examDate').required = false;
-                    document.getElementById('certificate_acquisitionDate').required = true;
-                    document.getElementById('certificate_proofFile').required = true;
-                }
-            }
-
-            certTypeRadios.forEach(radio => radio.addEventListener('change', updateCertFormVisibility));
-            updateCertFormVisibility(); // Initial call
-
-            certSubmitBtn.addEventListener('click', () => {
-                const certName = document.getElementById('certificate_name').value;
-                const certOrg = document.getElementById('certificate_organization').value;
-                const certType = document.getElementById('certificate_applicationType').value;
-                const examDate = document.getElementById('certificate_examDate').value;
-                const acqDate = document.getElementById('certificate_acquisitionDate').value;
-                const proofFile = document.getElementById('certificate_proofFile').files[0];
-
-                const errors = [];
-                if (!certName) errors.push('資格名称は必須です。');
-                if (!certOrg) errors.push('資格団体名は必須です。');
-                if (certType === '0' && !examDate) errors.push('受験日は必須です。');
-                if (certType === '1' && !acqDate) errors.push('取得日は必須です。');
-                if (certType === '1' && !proofFile) errors.push('取得証明書類の添付は必須です。');
-
-                if (errors.length > 0) {
-                    openMessageModal('入力エラー', `<p>以下の項目を確認してください:</p><ul>${errors.map(err => `<li>${err}</li>`).join('')}</ul>`, null, true);
-                    return;
-                }
-
-                let confirmContent = `
-                    <p><strong>申請種類:</strong> ${certType === '0' ? '取得前申請' : '取得後申請'}</p>
-                    <p><strong>資格名称:</strong> ${certName}</p>
-                    <p><strong>資格団体名:</strong> ${certOrg}</p>
-                `;
-                if (certType === '0') confirmContent += `<p><strong>受験日:</strong> ${examDate}</p>`;
-                if (certType === '1') confirmContent += `<p><strong>取得日:</strong> ${acqDate}</p>`;
-                if (certType === '1' && proofFile) confirmContent += `<p><strong>添付ファイル名:</strong> ${proofFile.name}</p>`;
-
-                openConfirmationModal('資格申請の確認', confirmContent, () => {
-                    console.log('資格申請データを送信します');
-                    openMessageModal('送信成功', '資格申請データを送信しました！', () => {
-                        clearFormInputs(certForm);
-                    });
-                });
-            });
+            addCertificateFormListeners();
             break;
         case 'wf4_dependent':
             contentHtml = `
-                <div class="bg-white p-6 sm:p-8 rounded-lg shadow-xl w-full max-w-2xl mx-auto">
-                    <h1 class="text-2xl sm:text-3xl font-bold text-center text-gray-800 mb-6 sm:mb-8">扶養届け</h1>
-                    <form id="dependentForm" class="space-y-6">
+                <div class="bg-white p-6 md:p-8 rounded-lg shadow-xl w-full max-w-2xl mx-auto">
+                    <h1 class="text-2xl md:text-3xl font-bold text-gray-800 mb-6 text-center">扶養届け</h1>
+                    <form id="dependent-form" class="space-y-6">
                         <div class="form-group">
-                            <label class="block text-gray-700 text-sm font-bold mb-2">扶養申請種類 <span class="text-red-500">*</span></label>
-                            <div class="mt-2 flex flex-wrap gap-x-6">
-                                <label class="inline-flex items-center">
-                                    <input type="radio" class="form-radio text-indigo-600 rounded-full" name="dependentType" value="0" checked />
-                                    <span class="ml-2 text-gray-700">0: 新規追加</span>
-                                </label>
-                                <label class="inline-flex items-center">
-                                    <input type="radio" class="form-radio text-indigo-600 rounded-full" name="dependentType" value="1" />
-                                    <span class="ml-2 text-gray-700">1: 削除</span>
-                                </label>
-                                <label class="inline-flex items-center">
-                                    <input type="radio" class="form-radio text-indigo-600 rounded-full" name="dependentType" value="2" />
-                                    <span class="ml-2 text-gray-700">2: 変更</span>
-                                </label>
-                            </div>
+                            <label for="dependentName" class="block text-sm font-medium text-gray-700 mb-1">
+                                扶養者の氏名 <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" id="dependentName" name="dependentName" required
+                                   class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500">
                         </div>
-
                         <div class="form-group">
-                            <label for="dependentName" class="block text-sm font-medium text-gray-700 mb-1">扶養家族の氏名 <span class="text-red-500">*</span></label>
-                            <input type="text" id="dependentName" name="dependentName" required class="w-full">
+                            <label for="relationship" class="block text-sm font-medium text-gray-700 mb-1">
+                                本人との関係 <span class="text-red-500">*</span>
+                            </label>
+                            <select id="relationship" name="relationship" required
+                                    class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                                <option value="">選択してください</option>
+                                <option value="配偶者">配偶者</option>
+                                <option value="子">子</option>
+                                <option value="親">親</option>
+                                <option value="その他">その他</option>
+                            </select>
                         </div>
-
                         <div class="form-group">
-                            <label for="dependentDob" class="block text-sm font-medium text-gray-700 mb-1">生年月日 <span class="text-red-500">*</span></label>
-                            <input type="date" id="dependentDob" name="dependentDob" required class="w-full">
+                            <label for="dependentBirthDate" class="block text-sm font-medium text-gray-700 mb-1">
+                                生年月日 <span class="text-red-500">*</span>
+                            </label>
+                            <input type="date" id="dependentBirthDate" name="dependentBirthDate" required
+                                   class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500">
                         </div>
-
                         <div class="form-group">
-                            <label for="dependentRelationship" class="block text-sm font-medium text-gray-700 mb-1">関係 <span class="text-red-500">*</span></label>
-                            <input type="text" id="dependentRelationship" name="dependentRelationship" required class="w-full">
+                            <label for="dependentFile" class="block text-sm font-medium text-gray-700 mb-1">
+                                添付ファイル
+                            </label>
+                            <input type="file" id="dependentFile" name="dependentFile"
+                                   class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
                         </div>
-
-                        <div class="form-group">
-                            <label for="dependentReason" class="block text-sm font-medium text-gray-700 mb-1">変更理由 (変更時のみ)</label>
-                            <textarea id="dependentReason" name="dependentReason" rows="4" class="w-full"></textarea>
-                        </div>
-
-                        <div id="dependentProofSection" class="form-group">
-                            <label for="dependentProofFile" class="block text-sm font-medium text-gray-700 mb-1">証明書類 (PDF) <span class="text-red-500">*</span></label>
-                            <input type="file" id="dependentProofFile" name="dependentProofFile" accept="application/pdf" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
-                        </div>
-
                         <div class="flex justify-center mt-6">
-                            <button type="button" id="submitButton_dependent" class="px-6 py-3 bg-green-600 text-white font-semibold rounded-md shadow-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition duration-300 ease-in-out">
+                            <button type="submit"
+                                    class="px-6 py-3 bg-green-600 text-white font-semibold rounded-md shadow-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition duration-300 ease-in-out">
                                 送信確認
                             </button>
                         </div>
                     </form>
                 </div>
             `;
-            document.getElementById('dynamicWorkflowArea').innerHTML = contentHtml;
-            const dependentForm = document.getElementById('dependentForm');
-            const dependentTypeRadios = dependentForm.querySelectorAll('input[name="dependentType"]');
-            const dependentReasonTextarea = document.getElementById('dependentReason');
-            const dependentProofSection = document.getElementById('dependentProofSection');
-            const dependentProofFile = document.getElementById('dependentProofFile');
-            const dependentSubmitBtn = document.getElementById('submitButton_dependent');
-
-            function updateDependentForm() {
-                const selectedType = dependentForm.querySelector('input[name="dependentType"]:checked').value;
-                if (selectedType === '2') { // 変更
-                    dependentReasonTextarea.disabled = false;
-                    dependentProofSection.classList.remove('hidden');
-                    dependentProofFile.required = true;
-                } else if (selectedType === '0') { // 新規追加
-                    dependentReasonTextarea.disabled = true;
-                    dependentProofSection.classList.remove('hidden');
-                    dependentProofFile.required = true;
-                } else { // 削除
-                    dependentReasonTextarea.disabled = true;
-                    dependentProofSection.classList.add('hidden');
-                    dependentProofFile.required = false;
-                }
-            }
-            dependentTypeRadios.forEach(radio => radio.addEventListener('change', updateDependentForm));
-            updateDependentForm();
-
-            dependentSubmitBtn.addEventListener('click', () => {
-                const selectedType = dependentForm.querySelector('input[name="dependentType"]:checked').value;
-                const name = document.getElementById('dependentName').value;
-                const dob = document.getElementById('dependentDob').value;
-                const relationship = document.getElementById('dependentRelationship').value;
-                const reason = dependentReasonTextarea.value;
-                const proofFile = dependentProofFile.files[0];
-
-                const errors = [];
-                if (!name) errors.push('氏名は必須です。');
-                if (!dob) errors.push('生年月日は必須です。');
-                if (!relationship) errors.push('関係は必須です。');
-                if (selectedType !== '2' && !proofFile) errors.push('証明書類の添付は必須です。');
-
-                if (errors.length > 0) {
-                    openMessageModal('入力エラー', `<p>以下の項目を確認してください:</p><ul>${errors.map(err => `<li>${err}</li>`).join('')}</ul>`, null, true);
-                    return;
-                }
-
-                let confirmContent = `
-                    <p><strong>申請種類:</strong> ${['新規追加', '削除', '変更'][selectedType]}</p>
-                    <p><strong>氏名:</strong> ${name}</p>
-                    <p><strong>生年月日:</strong> ${dob}</p>
-                    <p><strong>関係:</strong> ${relationship}</p>
-                `;
-                if (selectedType === '2' && reason) confirmContent += `<p><strong>変更理由:</strong> ${reason}</p>`;
-                if (proofFile) confirmContent += `<p><strong>添付ファイル名:</strong> ${proofFile.name}</p>`;
-
-                openConfirmationModal('扶養届けの確認', confirmContent, () => {
-                    console.log('扶養届けデータを送信します');
-                    openMessageModal('送信成功', '扶養届けデータを送信しました！', () => {
-                        clearFormInputs(dependentForm);
-                    });
-                });
-            });
+            addDependentFormListeners();
             break;
         case 'wf5_month_end':
             contentHtml = `
-                <div class="bg-white p-6 sm:p-8 rounded-lg shadow-xl w-full max-w-2xl mx-auto">
-                    <h1 class="text-2xl sm:text-3xl font-bold text-center text-gray-800 mb-6 sm:mb-8">月末処理</h1>
-                    <form id="monthEndForm" class="space-y-6">
+                <div class="bg-white p-6 md:p-8 rounded-lg shadow-xl w-full max-w-2xl mx-auto">
+                    <h1 class="text-2xl md:text-3xl font-bold text-gray-800 mb-6 text-center">月末処理</h1>
+                    <form id="monthEnd-form" class="space-y-6">
                         <div class="form-group">
-                            <label for="monthEndMonth" class="block text-sm font-medium text-gray-700 mb-1">申請月 <span class="text-red-500">*</span></label>
-                            <input type="month" id="monthEndMonth" name="monthEndMonth" required class="w-full">
+                            <label for="processingMonth" class="block text-sm font-medium text-gray-700 mb-1">
+                                対象年月 <span class="text-red-500">*</span>
+                            </label>
+                            <input type="month" id="processingMonth" name="processingMonth" required
+                                   class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500">
                         </div>
-
                         <div class="form-group">
-                            <label for="monthlyReport" class="block text-sm font-medium text-gray-700 mb-1">月次報告書 (PDF) <span class="text-red-500">*</span></label>
-                            <input type="file" id="monthlyReport" name="monthlyReport" accept="application/pdf" required class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                            <label for="reportFile" class="block text-sm font-medium text-gray-700 mb-1">
+                                報告書ファイル
+                            </label>
+                            <input type="file" id="reportFile" name="reportFile"
+                                   class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
                         </div>
-
                         <div class="form-group">
-                            <label for="monthEndNotes" class="block text-sm font-medium text-gray-700 mb-1">備考</label>
-                            <textarea id="monthEndNotes" name="monthEndNotes" rows="4" class="w-full"></textarea>
+                            <label for="notes" class="block text-sm font-medium text-gray-700 mb-1">
+                                備考
+                            </label>
+                            <textarea id="notes" name="notes" rows="4"
+                                      class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"></textarea>
                         </div>
-
                         <div class="flex justify-center mt-6">
-                            <button type="button" id="submitButton_monthEnd" class="px-6 py-3 bg-green-600 text-white font-semibold rounded-md shadow-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition duration-300 ease-in-out">
+                            <button type="submit"
+                                    class="px-6 py-3 bg-green-600 text-white font-semibold rounded-md shadow-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition duration-300 ease-in-out">
                                 送信確認
                             </button>
                         </div>
                     </form>
                 </div>
             `;
-            document.getElementById('dynamicWorkflowArea').innerHTML = contentHtml;
-            const monthEndForm = document.getElementById('monthEndForm');
-            const monthEndSubmitBtn = document.getElementById('submitButton_monthEnd');
-
-            monthEndSubmitBtn.addEventListener('click', () => {
-                const month = document.getElementById('monthEndMonth').value;
-                const reportFile = document.getElementById('monthlyReport').files[0];
-                const notes = document.getElementById('monthEndNotes').value;
-
-                const errors = [];
-                if (!month) errors.push('申請月は必須です。');
-                if (!reportFile) errors.push('月次報告書の添付は必須です。');
-
-                if (errors.length > 0) {
-                    openMessageModal('入力エラー', `<p>以下の項目を確認してください:</p><ul>${errors.map(err => `<li>${err}</li>`).join('')}</ul>`, null, true);
-                    return;
-                }
-
-                let confirmContent = `
-                    <p><strong>申請月:</strong> ${month}</p>
-                    <p><strong>月次報告書:</strong> ${reportFile.name}</p>
-                `;
-                if (notes) confirmContent += `<p><strong>備考:</strong> ${notes}</p>`;
-
-                openConfirmationModal('月末処理の確認', confirmContent, () => {
-                    console.log('月末処理データを送信します');
-                    openMessageModal('送信成功', '月末処理データを送信しました！', () => {
-                        clearFormInputs(monthEndForm);
-                    });
-                });
-            });
+            addMonthEndFormListeners();
             break;
         case 'wf6_address_change':
             contentHtml = `
-                <div class="bg-white p-6 sm:p-8 rounded-lg shadow-xl w-full max-w-2xl mx-auto">
-                    <h1 class="text-2xl sm:text-3xl font-bold text-center text-gray-800 mb-6 sm:mb-8">住所変更</h1>
+                <div class="bg-white p-6 md:p-8 rounded-lg shadow-xl w-full max-w-2xl mx-auto">
+                    <h1 class="text-2xl md:text-3xl font-bold text-gray-800 mb-6 text-center">住所変更</h1>
                     <form id="addressChangeForm" class="space-y-6">
                         <div class="form-group">
-                            <label for="postalCode" class="block text-sm font-medium text-gray-700 mb-1">郵便番号 <span class="text-red-500">*</span></label>
-                            <div class="zip-code-group">
-                                <input type="text" id="postalCode" name="postalCode" placeholder="例: 123-4567" maxlength="8" required class="w-full">
-                                <button type="button" id="searchAddressBtn" class="bg-indigo-500 text-white px-4 py-2 rounded-md hover:bg-indigo-600 focus:outline-none">住所検索</button>
+                            <label for="postalCode" class="block text-sm font-medium text-gray-700 mb-1">
+                                郵便番号 <span class="text-red-500">*</span>
+                            </label>
+                            <div class="zip-code-group mt-1">
+                                <input type="text" id="postalCode" name="postalCode" placeholder="例: 1000001" maxlength="7" required
+                                       class="block flex-grow px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-base">
+                                <button type="button" id="searchAddressBtn"
+                                        class="px-4 py-2 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-300 ease-in-out">
+                                    住所検索
+                                </button>
                             </div>
                         </div>
-
                         <div class="form-group">
-                            <label for="prefecture" class="block text-sm font-medium text-gray-700 mb-1">都道府県 <span class="text-red-500">*</span></label>
-                            <input type="text" id="prefecture" name="prefecture" required class="w-full">
+                            <label for="prefecture" class="block text-sm font-medium text-gray-700 mb-1">
+                                都道府県 <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" id="prefecture" name="prefecture" required
+                                   class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-base">
                         </div>
-
                         <div class="form-group">
-                            <label for="city" class="block text-sm font-medium text-gray-700 mb-1">市区町村 <span class="text-red-500">*</span></label>
-                            <input type="text" id="city" name="city" required class="w-full">
+                            <label for="city" class="block text-sm font-medium text-gray-700 mb-1">
+                                市区町村 <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" id="city" name="city" required
+                                   class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-base">
                         </div>
-
                         <div class="form-group">
-                            <label for="street" class="block text-sm font-medium text-gray-700 mb-1">町名・番地 <span class="text-red-500">*</span></label>
-                            <input type="text" id="street" name="street" required class="w-full">
+                            <label for="street" class="block text-sm font-medium text-gray-700 mb-1">
+                                番地 <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" id="street" name="street" required
+                                   class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-base">
                         </div>
-
                         <div class="form-group">
-                            <label for="building" class="block text-sm font-medium text-gray-700 mb-1">建物名・部屋番号 (任意)</label>
-                            <input type="text" id="building" name="building" class="w-full">
+                            <label for="building" class="block text-sm font-medium text-gray-700 mb-1">
+                                建物名・部屋番号 (任意)
+                            </label>
+                            <input type="text" id="building" name="building"
+                                   class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-base">
                         </div>
-
                         <div class="flex justify-center mt-6">
-                            <button type="button" id="submitButton_addressChange" class="px-6 py-3 bg-green-600 text-white font-semibold rounded-md shadow-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition duration-300 ease-in-out">
+                            <button type="submit"
+                                    class="px-6 py-3 bg-green-600 text-white font-semibold rounded-md shadow-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition duration-300 ease-in-out">
                                 送信確認
                             </button>
                         </div>
                     </form>
                 </div>
             `;
-            document.getElementById('dynamicWorkflowArea').innerHTML = contentHtml;
-            const addressChangeForm = document.getElementById('addressChangeForm');
-            const searchAddressBtn = document.getElementById('searchAddressBtn');
-            const postalCodeInput = document.getElementById('postalCode');
-            const prefectureInput = document.getElementById('prefecture');
-            const cityInput = document.getElementById('city');
-            const streetInput = document.getElementById('street');
-            const addressSubmitBtn = document.getElementById('submitButton_addressChange');
-
-            // 郵便番号から住所を自動入力する機能のシミュレーション
-            searchAddressBtn.addEventListener('click', async () => {
-                const postalCode = postalCodeInput.value.replace('-', '');
-                if (postalCode.length !== 7 || isNaN(postalCode)) {
-                    openMessageModal('入力エラー', '有効な7桁の郵便番号を入力してください。', null, true);
-                    return;
-                }
-                
-                // 郵便番号APIの代わりにモックデータを使用
-                const mockAddresses = {
-                    '1234567': { prefecture: '東京都', city: '中央区', street: '日本橋' },
-                    '1000001': { prefecture: '東京都', city: '千代田区', street: '千代田' },
-                    '5300001': { prefecture: '大阪府', city: '大阪市北区', street: '梅田' }
-                };
-
-                const address = mockAddresses[postalCode];
-                if (address) {
-                    prefectureInput.value = address.prefecture;
-                    cityInput.value = address.city;
-                    streetInput.value = address.street;
-                    showMessage('住所を自動入力しました。', 'success');
-                } else {
-                    showMessage('住所が見つかりませんでした。手動で入力してください。', 'error');
-                }
-            });
-
-            // フォームのバリデーションと送信
-            addressSubmitBtn.addEventListener('click', async () => {
-                if (addressChangeForm.checkValidity()) {
-                    const dataToSend = {
-                        postalCode: postalCodeInput.value,
-                        prefecture: prefectureInput.value,
-                        city: cityInput.value,
-                        street: streetInput.value,
-                        building: document.getElementById('building').value
-                    };
-
-                    const confirmContent = `
-                        <p><strong>郵便番号:</strong> ${dataToSend.postalCode}</p>
-                        <p><strong>住所:</strong> ${dataToSend.prefecture}${dataToSend.city}${dataToSend.street}</p>
-                        ${dataToSend.building ? `<p><strong>建物名:</strong> ${dataToSend.building}</p>` : ''}
-                    `;
-
-                    openConfirmationModal('住所変更の確認', confirmContent, async () => {
-                        // 実際の送信処理のシミュレーション
-                        try {
-                            const response = await fetch('/api/address-change', {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify(dataToSend)
-                            });
-                            if (!response.ok) throw new Error('Network response was not ok.');
-                            openMessageModal('送信成功', '住所変更データを最終送信しました！', () => {
-                                clearFormInputs(addressChangeForm);
-                                // Optionally navigate back to workflow or show completion screen
-                            });
-                        } catch (error) {
-                            console.error('送信エラー:', error);
-                            openMessageModal('送信成功', '住所変更データを最終送信しました！', () => {
-                                clearFormInputs(addressChangeForm);
-                                // Optionally navigate back to workflow or show completion screen
-                            });
-                        }
-                    }, () => {
-                        // 修正ボタンが押された場合、何もしない
-                    });
-                } else {
-                    openMessageModal('入力エラー', '入力に不備があります。必須項目を確認してください。', () => {}, true);
-                }
-            });
+            addAddressChangeFormListeners();
             break;
+        default:
+            contentHtml = `<p class="font-bold text-lg mb-4">ここより下はワークフローの種類により変動する</p>
+                           <div id="dynamicContent" class="text-gray-800 text-xl font-medium">
+                               選択されたワークフローは見つかりません。
+                           </div>`;
+            break;
+    }
+    // コンテンツを挿入
+    document.getElementById('dynamicWorkflowArea').innerHTML = contentHtml;
+}
+
+
+// 各フォームのイベントリスナー設定関数
+
+function addAttendanceFormListeners() {
+    const attendanceForm = document.getElementById('attendanceForm');
+    const reasonTypeRadios = document.getElementsByName('reasonType');
+    const lateTimeSection = document.getElementById('lateTimeSection');
+    const earlyLeaveTimeSection = document.getElementById('earlyLeaveTimeSection');
+    const substituteDateSection = document.getElementById('substituteDateSection');
+    const lateTimeSelect = document.getElementById('lateTime');
+    const submitButton = document.getElementById('submitButton_attendance');
+
+    // 初期表示設定
+    updateAttendanceFormSections();
+    generateLateTimeOptions();
+
+    // 理由の選択が変更されたときの処理
+    reasonTypeRadios.forEach(radio => {
+        radio.addEventListener('change', updateAttendanceFormSections);
+    });
+
+    function updateAttendanceFormSections() {
+        const selectedReason = document.querySelector('input[name="reasonType"]:checked').value;
+        const reasonSections = {
+            '0': [], // 有給
+            '1': [substituteDateSection], // 代休
+            '2': [], // 欠勤
+            '3': [lateTimeSection], // 遅刻
+            '4': [earlyLeaveTimeSection], // 早退
+            '5': [], // 中抜け
+            '6': [] // 忌引き
+        };
+
+        // すべてのセクションを非表示にする
+        Object.values(reasonSections).flat().forEach(section => {
+            if (section) section.classList.add('hidden');
+        });
+
+        // 選択された理由に対応するセクションを表示する
+        if (reasonSections[selectedReason]) {
+            reasonSections[selectedReason].forEach(section => {
+                if (section) section.classList.remove('hidden');
+            });
+        }
+    }
+
+    function generateLateTimeOptions() {
+        lateTimeSelect.innerHTML = '<option value="">選択してください</option>';
+        for (let i = 1; i <= 60; i++) {
+            const option = document.createElement('option');
+            option.value = i;
+            option.textContent = `${i}分`;
+            lateTimeSelect.appendChild(option);
+        }
+    }
+
+    if (submitButton) {
+        submitButton.addEventListener('click', (event) => {
+            event.preventDefault();
+            const contactDate = document.getElementById('contactDate').value;
+            const reasonType = document.querySelector('input[name="reasonType"]:checked').value;
+            const lateTime = document.getElementById('lateTime').value;
+            const earlyLeaveTime = document.getElementById('earlyLeaveTime').value;
+            const substituteDate = document.getElementById('substituteDate').value;
+            const reason = document.getElementById('reason').value;
+
+            // バリデーション
+            let hasError = false;
+            if (!contactDate) {
+                document.getElementById('contactDateError').textContent = '連絡日付は必須です。';
+                document.getElementById('contactDateError').classList.remove('hidden');
+                hasError = true;
+            } else {
+                document.getElementById('contactDateError').classList.add('hidden');
+            }
+
+            if (reasonType === '3' && !lateTime) {
+                openMessageModal('入力エラー', '遅刻時間が選択されていません。', () => {}, true);
+                return;
+            }
+
+            if (reasonType === '4' && !earlyLeaveTime) {
+                openMessageModal('入力エラー', '早退時間が入力されていません。', () => {}, true);
+                return;
+            }
+
+            if (reasonType === '1' && !substituteDate) {
+                openMessageModal('入力エラー', '代休消化日が入力されていません。', () => {}, true);
+                return;
+            }
+
+            if (hasError) {
+                openMessageModal('入力エラー', '入力に不備があります。必須項目を確認してください。', () => {}, true);
+                return;
+            }
+
+            // 確認モーダル用のコンテンツを生成
+            const confirmHtml = `
+                <div class="space-y-2">
+                    <p><strong>連絡日付:</strong> ${contactDate}</p>
+                    <p><strong>事由:</strong> ${getReasonText(reasonType)}</p>
+                    ${reasonType === '3' ? `<p><strong>遅刻時間:</strong> ${lateTime}分</p>` : ''}
+                    ${reasonType === '4' ? `<p><strong>早退時間:</strong> ${earlyLeaveTime}</p>` : ''}
+                    ${reasonType === '1' ? `<p><strong>代休消化日:</strong> ${substituteDate}</p>` : ''}
+                    ${reason ? `<p><strong>理由:</strong> ${reason}</p>` : ''}
+                </div>
+            `;
+            openConfirmationModal('勤怠連絡の確認', confirmHtml, () => {
+                // 送信処理（ここでは成功メッセージを表示）
+                openMessageModal('送信成功', '勤怠連絡が正常に送信されました！', () => {
+                    // フォームをリセット
+                    attendanceForm.reset();
+                    updateAttendanceFormSections(); // フォームリセット後にセクション表示も更新
+                });
+            }, () => {
+                // 修正ボタンが押された場合、何もしない
+            });
+        });
     }
 }
 
-// フォームの入力値をクリアするヘルパー関数
-function clearFormInputs(form) {
-    const inputs = form.querySelectorAll('input, select, textarea');
-    inputs.forEach(input => {
-        if (input.type === 'checkbox' || input.type === 'radio') {
-            input.checked = false;
-        } else if (input.type === 'file') {
-            input.value = null; // ファイル入力はvalueをnullに
-        } else {
-            input.value = '';
-        }
+function getReasonText(reasonValue) {
+    const reasons = {
+        '0': '有給',
+        '1': '代休',
+        '2': '欠勤',
+        '3': '遅刻',
+        '4': '早退',
+        '5': '中抜け',
+        '6': '忌引き'
+    };
+    return reasons[reasonValue] || '';
+}
+
+function addSubscriptionFormListeners() {
+    const subscriptionForm = document.getElementById('subscription-form');
+    const routeOptionsContainer = document.getElementById('route-options');
+    const addCandidateBtn = document.getElementById('addCandidateBtn');
+    let candidateCount = 1;
+
+    // ワークフローに戻るボタンのイベントリスナー
+    document.querySelector('.back-to-workflow-btn').addEventListener('click', () => {
+        document.getElementById('workflowType').value = "";
+        renderWorkflowScreen();
     });
-    // ラジオボタンのデフォルト値を再設定
-    const firstRadio = form.querySelector('input[type="radio"]');
-    if (firstRadio) {
-        firstRadio.checked = true;
+
+
+    addCandidateBtn.addEventListener('click', () => {
+        candidateCount++;
+        const newCandidateHtml = `
+            <div class="route-option p-4 border border-dashed border-gray-300 rounded-md">
+                <h3 class="text-lg font-semibold mb-2">候補 ${candidateCount}</h3>
+                <div class="form-group">
+                    <label for="transitStation${candidateCount}">経由駅:</label>
+                    <input type="text" id="transitStation${candidateCount}" name="transitStation[]" class="w-full">
+                </div>
+                <div class="form-group">
+                    <label for="commuteTime${candidateCount}">通勤時間:</label>
+                    <select id="commuteTime${candidateCount}" name="commuteTime[]" required class="w-full">
+                        <option value="">選択してください</option>
+                        <option value="15分未満">15分未満</option>
+                        <option value="15分-30分">15分-30分</option>
+                        <option value="30分-1時間">30分-1時間</option>
+                        <option value="1時間以上">1時間以上</option>
+                    </select>
+                    <div class="error-message" id="commuteTime${candidateCount}-error"></div>
+                </div>
+                <div class="form-group">
+                    <label for="amount${candidateCount}">金額:</label>
+                    <input type="number" id="amount${candidateCount}" name="amount[]" required class="w-full">
+                    <div class="error-message" id="amount${candidateCount}-error"></div>
+                </div>
+            </div>
+        `;
+        routeOptionsContainer.insertAdjacentHTML('beforeend', newCandidateHtml);
+    });
+
+    subscriptionForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        // エラーメッセージをリセット
+        document.querySelectorAll('.error-message').forEach(el => el.textContent = '');
+
+        const formData = new FormData(subscriptionForm);
+        let isValid = true;
+
+        const subscriptionDate = formData.get('subscriptionDate');
+        const nearestStation = formData.get('nearestStation');
+        if (!subscriptionDate) {
+            document.getElementById('subscriptionDate-error').textContent = '定期購入日は必須です。';
+            isValid = false;
+        }
+        if (!nearestStation) {
+            document.getElementById('nearestStation-error').textContent = '最寄り駅は必須です。';
+            isValid = false;
+        }
+
+        const transitStations = formData.getAll('transitStation[]');
+        const commuteTimes = formData.getAll('commuteTime[]');
+        const amounts = formData.getAll('amount[]');
+
+        for (let i = 0; i < amounts.length; i++) {
+            if (!amounts[i]) {
+                document.getElementById(`amount${i + 1}-error`).textContent = `候補 ${i + 1} の金額は必須です。`;
+                isValid = false;
+            }
+            if (!commuteTimes[i]) {
+                document.getElementById(`commuteTime${i + 1}-error`).textContent = `候補 ${i + 1} の通勤時間は必須です。`;
+                isValid = false;
+            }
+        }
+
+        if (!isValid) {
+            openMessageModal('入力エラー', '入力に不備があります。必須項目を確認してください。', () => {}, true);
+            return;
+        }
+
+        let confirmHtml = `
+            <div class="space-y-2">
+                <p><strong>定期購入日:</strong> ${subscriptionDate}</p>
+                <p><strong>最寄り駅:</strong> ${nearestStation}</p>
+                <p><strong>目的駅:</strong> ${formData.get('destinationStation')}</p>
+                <h3 class="font-bold mt-4">購入経路:</h3>
+            </div>
+            <ul class="list-disc list-inside space-y-2 mt-2">
+        `;
+        for (let i = 0; i < amounts.length; i++) {
+            confirmHtml += `
+                <li>
+                    <strong>候補 ${i + 1}:</strong><br>
+                    経由駅: ${transitStations[i] || 'なし'}<br>
+                    通勤時間: ${commuteTimes[i]}<br>
+                    金額: ${amounts[i]}円
+                </li>
+            `;
+        }
+        confirmHtml += '</ul>';
+
+        openConfirmationModal('定期購入申請の確認', confirmHtml, () => {
+            // 送信処理
+            const dataToSend = {
+                subscriptionDate: subscriptionDate,
+                nearestStation: nearestStation,
+                destinationStation: formData.get('destinationStation'),
+                routes: amounts.map((amount, i) => ({
+                    transitStation: transitStations[i] || null,
+                    commuteTime: commuteTimes[i],
+                    amount: amount
+                }))
+            };
+            console.log('送信データ:', dataToSend);
+            openMessageModal('送信成功', '定期購入申請を最終送信しました！', () => {
+                subscriptionForm.reset();
+            });
+        }, () => {
+            // Cancel handler - no action needed
+        });
+    });
+}
+
+
+function addCertificateFormListeners() {
+    const form = document.getElementById('certificate-form');
+    form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const certificateName = document.getElementById('certificateName').value;
+        const acquisitionDate = document.getElementById('acquisitionDate').value;
+
+        if (!certificateName || !acquisitionDate) {
+            openMessageModal('入力エラー', '資格名と取得日は必須項目です。', () => {}, true);
+            return;
+        }
+
+        const formData = new FormData(form);
+        const confirmHtml = `
+            <div class="space-y-2">
+                <p><strong>資格名:</strong> ${formData.get('certificateName')}</p>
+                <p><strong>取得日:</strong> ${formData.get('acquisitionDate')}</p>
+                <p><strong>発行団体:</strong> ${formData.get('issuingAuthority') || '未入力'}</p>
+                <p><strong>備考:</strong> ${formData.get('notes') || '未入力'}</p>
+                <p><strong>添付ファイル:</strong> ${formData.get('certificateFile')?.name || 'なし'}</p>
+            </div>
+        `;
+
+        openConfirmationModal('資格申請の確認', confirmHtml, () => {
+            console.log('Form Data:', Object.fromEntries(formData.entries()));
+            openMessageModal('送信成功', '資格申請を最終送信しました！', () => {
+                form.reset();
+            });
+        }, () => {});
+    });
+}
+
+function addDependentFormListeners() {
+    const form = document.getElementById('dependent-form');
+    form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const dependentName = document.getElementById('dependentName').value;
+        const relationship = document.getElementById('relationship').value;
+        const dependentBirthDate = document.getElementById('dependentBirthDate').value;
+
+        if (!dependentName || !relationship || !dependentBirthDate) {
+            openMessageModal('入力エラー', 'すべての必須項目を入力してください。', () => {}, true);
+            return;
+        }
+
+        const formData = new FormData(form);
+        const confirmHtml = `
+            <div class="space-y-2">
+                <p><strong>扶養者の氏名:</strong> ${formData.get('dependentName')}</p>
+                <p><strong>本人との関係:</strong> ${formData.get('relationship')}</p>
+                <p><strong>生年月日:</strong> ${formData.get('dependentBirthDate')}</p>
+                <p><strong>添付ファイル:</strong> ${formData.get('dependentFile')?.name || 'なし'}</p>
+            </div>
+        `;
+
+        openConfirmationModal('扶養届けの確認', confirmHtml, () => {
+            console.log('Form Data:', Object.fromEntries(formData.entries()));
+            openMessageModal('送信成功', '扶養届けを最終送信しました！', () => {
+                form.reset();
+            });
+        }, () => {});
+    });
+}
+
+function addMonthEndFormListeners() {
+    const form = document.getElementById('monthEnd-form');
+    form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const processingMonth = document.getElementById('processingMonth').value;
+
+        if (!processingMonth) {
+            openMessageModal('入力エラー', '対象年月は必須項目です。', () => {}, true);
+            return;
+        }
+
+        const formData = new FormData(form);
+        const confirmHtml = `
+            <div class="space-y-2">
+                <p><strong>対象年月:</strong> ${formData.get('processingMonth')}</p>
+                <p><strong>報告書ファイル:</strong> ${formData.get('reportFile')?.name || 'なし'}</p>
+                <p><strong>備考:</strong> ${formData.get('notes') || '未入力'}</p>
+            </div>
+        `;
+
+        openConfirmationModal('月末処理申請の確認', confirmHtml, () => {
+            console.log('Form Data:', Object.fromEntries(formData.entries()));
+            openMessageModal('送信成功', '月末処理申請を最終送信しました！', () => {
+                form.reset();
+            });
+        }, () => {});
+    });
+}
+
+
+function addAddressChangeFormListeners() {
+    const form = document.getElementById('addressChangeForm');
+    const postalCodeInput = document.getElementById('postalCode');
+    const searchAddressBtn = document.getElementById('searchAddressBtn');
+    const prefectureInput = document.getElementById('prefecture');
+    const cityInput = document.getElementById('city');
+    const streetInput = document.getElementById('street');
+
+    // 住所検索ボタンのイベントリスナー
+    if (searchAddressBtn) {
+        searchAddressBtn.addEventListener('click', async () => {
+            const postalCode = postalCodeInput.value.replace('-', '');
+            if (postalCode.length !== 7 || !/^\d{7}$/.test(postalCode)) {
+                openMessageModal('入力エラー', '7桁の半角数字で郵便番号を入力してください。', () => {}, true);
+                return;
+            }
+
+            try {
+                // ここではモックデータを使用
+                const mockAddress = {
+                    '1000001': { prefecture: '東京都', city: '千代田区', street: '千代田' },
+                    '5300001': { prefecture: '大阪府', city: '大阪市北区', street: '梅田' },
+                };
+                const addressData = mockAddress[postalCode] || null;
+
+                if (addressData) {
+                    prefectureInput.value = addressData.prefecture;
+                    cityInput.value = addressData.city;
+                    streetInput.value = addressData.street;
+                } else {
+                    openMessageModal('検索失敗', '指定された郵便番号の住所が見つかりませんでした。', () => {}, true);
+                }
+            } catch (error) {
+                console.error('住所検索エラー:', error);
+                openMessageModal('通信エラー', '住所検索中にエラーが発生しました。', () => {}, true);
+            }
+        });
     }
-    // エラーメッセージを非表示に
-    const errorMessages = form.querySelectorAll('.error-message');
-    errorMessages.forEach(msg => msg.classList.add('hidden'));
+
+    // フォーム送信イベントリスナー
+    form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const requiredFields = ['postalCode', 'prefecture', 'city', 'street'];
+        let allFieldsFilled = true;
+        requiredFields.forEach(id => {
+            const input = document.getElementById(id);
+            if (!input.value.trim()) {
+                allFieldsFilled = false;
+            }
+        });
+
+        if (!allFieldsFilled) {
+            openMessageModal('入力エラー', 'すべての必須項目を入力してください。', () => {}, true);
+            return;
+        }
+
+        const formData = new FormData(form);
+        const confirmHtml = `
+            <div class="space-y-2">
+                <p><strong>郵便番号:</strong> ${formData.get('postalCode')}</p>
+                <p><strong>住所:</strong> ${formData.get('prefecture')}${formData.get('city')}${formData.get('street')}</p>
+                <p><strong>建物名・部屋番号:</strong> ${formData.get('building') || '未入力'}</p>
+            </div>
+        `;
+        openConfirmationModal('住所変更申請の確認', confirmHtml, async () => {
+            const dataToSend = {
+                postalCode: formData.get('postalCode'),
+                prefecture: formData.get('prefecture'),
+                city: formData.get('city'),
+                street: formData.get('street'),
+                building: formData.get('building') || null,
+            };
+            console.log('Final Data to send:', dataToSend);
+            try {
+                // 実際のAPI通信の代わりにシミュレーション
+                const response = await fetch('https://example.com/api/submit-address', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(dataToSend)
+                });
+                if (!response.ok) throw new Error('Network response was not ok.');
+                openMessageModal('送信成功', '住所変更データを最終送信しました！', () => {
+                    clearFormInputs(addressChangeForm);
+                    // Optionally navigate back to workflow or show completion screen
+                });
+            } catch (error) {
+                console.error('送信エラー:', error);
+                openMessageModal('送信成功', '住所変更データを最終送信しました！', () => {
+                    clearFormInputs(addressChangeForm);
+                    // Optionally navigate back to workflow or show completion screen
+                });
+            }
+        }, () => {
+            // 修正ボタンが押された場合、何もしない
+        });
+    });
 }
 
 // ページ読み込み完了時に最初にログイン画面をレンダリング
