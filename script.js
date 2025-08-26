@@ -475,9 +475,9 @@ function renderWorkflowScreen() {
 
 /**
  * ワークフローコンテンツを動的にロードする関数
- * @param {string} workflowId - ロードするワークフローのID
  */
 function loadWorkflowContent(workflowId) {
+    const dynamicWorkflowArea = document.getElementById('dynamicWorkflowArea');
     let contentHtml = '';
     // 各ワークフローIDに基づいて適切なHTMLコンテンツを挿入
     switch (workflowId) {
@@ -584,8 +584,6 @@ function loadWorkflowContent(workflowId) {
                     </form>
                 </div>
             `;
-            // Add event listeners for attendance form
-            addAttendanceFormListeners();
             break;
         case 'wf2_purchase': // 定期購入
             contentHtml = `
@@ -649,8 +647,6 @@ function loadWorkflowContent(workflowId) {
                     </form>
                 </div>
             `;
-            // Add event listeners for subscription form
-            addSubscriptionFormListeners();
             break;
         case 'wf3_certificate':
             contentHtml = `
@@ -701,7 +697,6 @@ function loadWorkflowContent(workflowId) {
                     </form>
                 </div>
             `;
-            addCertificateFormListeners();
             break;
         case 'wf4_dependent':
             contentHtml = `
@@ -751,7 +746,6 @@ function loadWorkflowContent(workflowId) {
                     </form>
                 </div>
             `;
-            addDependentFormListeners();
             break;
         case 'wf5_month_end':
             contentHtml = `
@@ -788,7 +782,6 @@ function loadWorkflowContent(workflowId) {
                     </form>
                 </div>
             `;
-            addMonthEndFormListeners();
             break;
         case 'wf6_address_change':
             contentHtml = `
@@ -845,7 +838,6 @@ function loadWorkflowContent(workflowId) {
                     </form>
                 </div>
             `;
-            addAddressChangeFormListeners();
             break;
         default:
             contentHtml = `<p class="font-bold text-lg mb-4">ここより下はワークフローの種類により変動する</p>
@@ -855,7 +847,29 @@ function loadWorkflowContent(workflowId) {
             break;
     }
     // コンテンツを挿入
-    document.getElementById('dynamicWorkflowArea').innerHTML = contentHtml;
+    dynamicWorkflowArea.innerHTML = contentHtml;
+
+    // 💡 修正ポイント：HTMLコンテンツが挿入された後に、イベントリスナーを登録する
+    switch (workflowId) {
+        case 'wf1_attendance':
+            addAttendanceFormListeners();
+            break;
+        case 'wf2_purchase':
+            addSubscriptionFormListeners();
+            break;
+        case 'wf3_certificate':
+            addCertificateFormListeners();
+            break;
+        case 'wf4_dependent':
+            addDependentFormListeners();
+            break;
+        case 'wf5_month_end':
+            addMonthEndFormListeners();
+            break;
+        case 'wf6_address_change':
+            addAddressChangeFormListeners();
+            break;
+    }
 }
 
 
@@ -999,10 +1013,13 @@ function addSubscriptionFormListeners() {
     let candidateCount = 1;
 
     // ワークフローに戻るボタンのイベントリスナー
-    document.querySelector('.back-to-workflow-btn').addEventListener('click', () => {
-        document.getElementById('workflowType').value = "";
-        renderWorkflowScreen();
-    });
+    const backToWorkflowBtn = document.querySelector('#subscription-form .back-to-workflow-btn');
+    if (backToWorkflowBtn) {
+        backToWorkflowBtn.addEventListener('click', () => {
+            document.getElementById('workflowType').value = "";
+            renderWorkflowScreen();
+        });
+    }
 
 
     addCandidateBtn.addEventListener('click', () => {
@@ -1310,6 +1327,20 @@ function addAddressChangeFormListeners() {
         });
     });
 }
+
+function clearFormInputs(form) {
+    const inputs = form.querySelectorAll('input, select, textarea');
+    inputs.forEach(input => {
+        if (input.type === 'file') {
+            input.value = ''; // ファイル入力の値をクリア
+        } else if (input.type === 'checkbox' || input.type === 'radio') {
+            input.checked = false; // チェックボックスとラジオボタンをクリア
+        } else {
+            input.value = ''; // それ以外の入力をクリア
+        }
+    });
+}
+
 
 // ページ読み込み完了時に最初にログイン画面をレンダリング
 document.addEventListener('DOMContentLoaded', () => {
