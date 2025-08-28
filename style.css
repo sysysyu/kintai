@@ -51,7 +51,6 @@ body {
 }
 /* ログイン画面の特定の幅を強制 */
 .login-content {
-    max-width: 480px; /* main-contentのw-full max-w-mdに対応 */
     width: 100%;
     margin-left: auto;
     margin-right: auto;
