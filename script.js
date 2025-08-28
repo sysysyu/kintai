@@ -144,17 +144,17 @@ globalCloseMessageModalButton.addEventListener('click', closeMessageModal);
  */
 function renderLoginScreen() {
     // app-containerのスタイルをログイン画面用に調整
-    appContainer.classList.add('max-w-lg'); // 💡 変更点: 'max-w-md' から 'max-w-lg' へ変更
-    appContainer.classList.add('p-8');
-    appContainer.classList.remove('max-w-screen-lg');
-    appContainer.classList.remove('p-6');
+    appContainer.classList.add('max-w-lg'); // ログイン画面の最大幅を適用
+    appContainer.classList.add('p-8'); // ログイン画面のパディングを適用
+    appContainer.classList.remove('max-w-screen-lg'); // ワークフロー画面の幅を解除
+    appContainer.classList.remove('p-6'); // ワークフロー画面のパディングを解除
 
     appContainer.innerHTML = `
         <div class="login-content">
             <h2 class="text-3xl font-bold text-center mb-8 text-gray-800">システムログイン</h2>
 
             <div id="errorMessage" class="text-red-600 text-center mb-6 font-medium">
-            </div>
+                </div>
 
             <form id="loginForm" class="space-y-6" novalidate>
                 <div>
@@ -245,7 +245,6 @@ function renderLoginScreen() {
     });
 }
 
-
 /**
  * ワークフロー画面をレンダリングする関数
  */
@@ -258,7 +257,6 @@ function renderWorkflowScreen() {
 
     appContainer.innerHTML = `
         <div class="workflow-content space-y-6">
-            {*--- 💡 変更点: タイトルを追加 ---*}
             <h1 class="text-3xl font-bold text-gray-800 text-center">ワークフロー申請</h1>
 
             <header class="header-bg p-4 rounded-lg flex flex-col sm:flex-row sm:justify-between items-center sm:space-x-8 shadow-md">
@@ -340,7 +338,6 @@ function renderWorkflowScreen() {
     }
 
     // 2. ログアウトボタンの機能 (ログイン画面に戻る)
-    {*--- 💡 変更点: ログアウト処理 ---*}
     logoutButton.addEventListener('click', () => {
         if (confirm('ログアウトしますか？')) {
             renderLoginScreen();
