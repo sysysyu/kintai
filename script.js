@@ -156,7 +156,7 @@ function renderLoginScreen() {
             <div id="errorMessage" class="text-red-600 text-center mb-6 font-medium h-6">
                 </div>
 
-            <form id="loginForm" class="space-y-6">
+            <form id="loginForm" class="space-y-6" novalidate>
                 <div>
                     <label for="loginId" class="block text-sm font-medium text-gray-700 mb-1">ログインID</label>
                     <input
