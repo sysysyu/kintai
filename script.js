@@ -191,13 +191,6 @@ function renderLoginScreen() {
                     >
                         ログイン
                     </button>
-                    <button
-                        type="button"
-                        id="createAccountBtn"
-                        class="w-full flex justify-center py-2.5 px-4 mt-4 border border-transparent rounded-lg shadow-sm text-lg font-semibold text-white bg-gray-600 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition duration-200 ease-in-out transform hover:-translate-y-0.5 hover:shadow-lg focus:scale-95"
-                    >
-                        新規アカウント作成
-                    </button>
                 </div>
             </form>
         </div>
@@ -207,7 +200,6 @@ function renderLoginScreen() {
     const loginIdInput = document.getElementById('loginId');
     const passwordInput = document.getElementById('password');
     const errorMessageDiv = document.getElementById('errorMessage');
-    const createAccountBtn = document.getElementById('createAccountBtn');
 
     // ログイン処理のシミュレーション
     const validLoginId = 'jqit@gmail.com';
@@ -255,79 +247,7 @@ function renderLoginScreen() {
             }, 1000); // メッセージ表示後に遷移
         }
     });
-
-    createAccountBtn.addEventListener('click', () => {
-        renderCreateAccountScreen();
-    });
 }
-
-/**
- * 新規アカウント作成画面をレンダリングする関数
- */
-function renderCreateAccountScreen() {
-    appContainer.classList.add('max-w-md');
-    appContainer.classList.add('p-8');
-    appContainer.classList.remove('max-w-screen-lg');
-    appContainer.classList.remove('p-6');
-
-    appContainer.innerHTML = `
-        <div class="create-account-content">
-            <h2 class="text-3xl font-bold text-center mb-8 text-gray-800">新規アカウント作成</h2>
-            <div id="createAccountErrorMessage" class="text-red-600 text-center mb-6 font-medium h-6"></div>
-            <form id="createAccountForm" class="space-y-6">
-                <div>
-                    <label for="newLoginId" class="block text-sm font-medium text-gray-700 mb-1">ログインID:</label>
-                    <input type="text" id="newLoginId" name="newLoginId" required
-                        class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 placeholder-gray-500 text-base focus:outline-none transition duration-150 ease-in-out">
-                </div>
-                <div>
-                    <label for="newPassword" class="block text-sm font-medium text-gray-700 mb-1">パスワード:</label>
-                    <input type="password" id="newPassword" name="newPassword" required
-                        class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 placeholder-gray-500 text-base focus:outline-none transition duration-150 ease-in-out">
-                </div>
-                <div>
-                    <button type="submit"
-                        class="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-lg font-semibold text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-200 ease-in-out transform hover:-translate-y-0.5 hover:shadow-lg focus:scale-95">
-                        アカウントを作成する
-                    </button>
-                    <button type="button" id="backToLoginBtn"
-                        class="w-full flex justify-center py-2.5 px-4 mt-4 border border-transparent rounded-lg shadow-sm text-lg font-semibold text-white bg-gray-600 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition duration-200 ease-in-out transform hover:-translate-y-0.5 hover:shadow-lg focus:scale-95">
-                        ログイン画面に戻る
-                    </button>
-                </div>
-            </form>
-        </div>
-    `;
-
-    const createAccountForm = document.getElementById('createAccountForm');
-    const newLoginIdInput = document.getElementById('newLoginId');
-    const newPasswordInput = document.getElementById('newPassword');
-    const createAccountErrorMessageDiv = document.getElementById('createAccountErrorMessage');
-    const backToLoginBtn = document.getElementById('backToLoginBtn');
-
-    createAccountForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        createAccountErrorMessageDiv.textContent = '';
-
-        if (!newLoginIdInput.value.trim() || !newPasswordInput.value.trim()) {
-            createAccountErrorMessageDiv.textContent = 'すべての項目を入力してください。';
-            showMessage('すべての項目を入力してください。', 'error');
-            return;
-        }
-
-        // ここでアカウント作成処理を実装 (今回はシミュレーション)
-        console.log('アカウント作成成功 (シミュレーション)');
-        showMessage('アカウントが作成されました！ログイン画面に戻ります。', 'success');
-        setTimeout(() => {
-            renderLoginScreen();
-        }, 1000);
-    });
-
-    backToLoginBtn.addEventListener('click', () => {
-        renderLoginScreen();
-    });
-}
-
 
 /**
  * ワークフロー画面をレンダリングする関数
