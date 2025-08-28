@@ -145,14 +145,43 @@ globalCloseMessageModalButton.addEventListener('click', closeMessageModal);
 function renderLoginScreen() {
     // ... (中略 - app-containerのスタイル設定は変更なし)
 
-    appContainer.innerHTML = `
+appContainer.innerHTML = `
         <div class="login-content">
             <h2 class="text-3xl font-bold text-center mb-8 text-gray-800">システムログイン</h2>
 
             <div id="errorMessage" class="text-red-600 text-center mb-6 font-medium h-6">
-            </div>
+                </div>
 
             <form id="loginForm" class="space-y-6" novalidate>
+                
+                {*--- 以下の部分が前回欠落していました ---*}
+                <div>
+                    <label for="loginId" class="block text-sm font-medium text-gray-700 mb-1">ログインID</label>
+                    <input
+                        type="text"
+                        id="loginId"
+                        name="loginId"
+                        maxlength="50"
+                        placeholder="ログインIDを入力してください"
+                        required
+                        class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 placeholder-gray-500 text-base focus:outline-none transition duration-150 ease-in-out"
+                    >
+                </div>
+
+                <div>
+                    <label for="password" class="block text-sm font-medium text-gray-700 mb-1">パスワード</label>
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        maxlength="16"
+                        placeholder="パスワードを入力してください"
+                        required
+                        class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 placeholder-gray-500 text-base focus:outline-none transition duration-150 ease-in-out"
+                    >
+                </div>
+                {*--- ここまで ---*}
+
                 <div>
                     <button
                         type="submit"
