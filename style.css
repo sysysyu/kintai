@@ -78,32 +78,7 @@ body {
     from { opacity: 0; transform: translateY(20px); }
     to { opacity: 1; transform: translateY(0); }
 }
-/* Custom styles for the date input to show calendar icon */
-input[type="date"]::-webkit-calendar-picker-indicator {
-    background: transparent;
-    bottom: 0;
-    color: transparent;
-    cursor: pointer;
-    height: auto;
-    left: 0;
-    position: absolute;
-    right: 0;
-    top: 0;
-    width: auto;
-}
-/* Style for the actual calendar icon */
-input[type="date"] {
-    position: relative;
-}
-input[type="date"]::after {
-    content: "📅"; /* Calendar emoji as icon */
-    position: absolute;
-    right: 8px;
-    top: 50%;
-    transform: translateY(-50%);
-    pointer-events: none; /* Make sure it doesn't block clicks */
-    font-size: 1.25rem; /* Adjust size as needed */
-}
+
 /* Common form group styling */
 .form-group label {
     font-weight: 600;
