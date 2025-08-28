@@ -410,9 +410,9 @@ function loadWorkflowContent(workflowId) {
                                 日付 <span class="text-red-500">*</span>
                             </label>
                             <div class="relative">
-                                <input type="date" id="contactDate" name="contactDate"
-                                       class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm appearance-none pr-10"
-                                       required>
+                                <input type="text" id="contactDate" name="contactDate"
+                                       class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm attendance-date-picker"
+                                       placeholder="YYYY/MM/DD" required>
                             </div>
                             <p id="contactDateError" class="error-message hidden">有効な日付（YYYY/MM/DD）を入力してください。</p>
                         </div>
@@ -486,8 +486,9 @@ function loadWorkflowContent(workflowId) {
                                 代休消化日 <span class="text-red-500">*</span>
                             </label>
                             <div class="relative">
-                                <input type="date" id="substituteDate" name="substituteDate"
-                                       class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm appearance-none pr-10">
+                                <input type="text" id="substituteDate" name="substituteDate"
+                                       class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm attendance-date-picker"
+                                       placeholder="YYYY/MM/DD">
                             </div>
                             <p id="substituteDateError" class="error-message hidden">有効な日付（YYYY/MM/DD）を入力してください。</p>
                         </div>
@@ -812,6 +813,12 @@ function addAttendanceFormListeners() {
     const submitButton = document.getElementById('submitButton_attendance');
     const middleLeaveTimeSection = document.getElementById('middleLeaveTimeSection');
     const middleLeaveTimeSelect = document.getElementById('middleLeaveTime');
+
+    // Flatpickrを初期化
+    flatpickr(".attendance-date-picker", {
+        dateFormat: "Y/m/d", // 表示とデータのフォーマットを YYYY/MM/DD に
+        allowInput: true,    // 手入力を許可する
+    });
 
     // 初期表示設定
     updateAttendanceFormSections();
