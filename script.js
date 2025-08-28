@@ -251,13 +251,16 @@ function renderLoginScreen() {
  */
 function renderWorkflowScreen() {
     // app-containerのスタイルをワークフロー画面用に調整
-    appContainer.classList.remove('max-w-md'); // ログイン画面の最大幅を解除
+    appContainer.classList.remove('max-w-lg'); // ログイン画面の最大幅を解除
     appContainer.classList.remove('p-8'); // ログイン画面のパディングを解除
     appContainer.classList.add('max-w-screen-lg'); // ワークフロー画面の幅を適用 (lg: 1024px)
     appContainer.classList.add('p-6'); // ワークフロー画面のパディングを適用
 
     appContainer.innerHTML = `
         <div class="workflow-content space-y-6">
+            {*--- 💡 変更点: タイトルを追加 ---*}
+            <h1 class="text-3xl font-bold text-gray-800 text-center">ワークフロー申請</h1>
+
             <header class="header-bg p-4 rounded-lg flex flex-col sm:flex-row sm:justify-between items-center sm:space-x-8 shadow-md">
                 <div class="flex flex-col sm:flex-row sm:space-x-8 w-full sm:w-auto mb-4 sm:mb-0">
                     <div class="mb-2 sm:mb-0">
@@ -337,12 +340,11 @@ function renderWorkflowScreen() {
     }
 
     // 2. ログアウトボタンの機能 (ログイン画面に戻る)
+    {*--- 💡 変更点: ログアウト処理 ---*}
     logoutButton.addEventListener('click', () => {
-        console.log('データを破棄しました。');
-        showMessage('ログアウトしました。ログイン画面へ遷移します。', 'success');
-        setTimeout(() => {
-            renderLoginScreen(); // ログイン画面を再レンダリング
-        }, 1000);
+        if (confirm('ログアウトしますか？')) {
+            renderLoginScreen();
+        }
     });
 
     // 3. ワークフロータイププルダウンの選択肢設定
