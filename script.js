@@ -143,46 +143,16 @@ globalCloseMessageModalButton.addEventListener('click', closeMessageModal);
  * ログイン画面をレンダリングする関数
  */
 function renderLoginScreen() {
-    // app-containerのスタイルをログイン画面用に調整
-    appContainer.classList.add('max-w-md'); // ログイン画面の最大幅を適用
-    appContainer.classList.add('p-8'); // ログイン画面のパディングを適用
-    appContainer.classList.remove('max-w-screen-lg'); // ワークフロー画面の幅を解除
-    appContainer.classList.remove('p-6'); // ワークフロー画面のパディングを解除
+    // ... (中略 - app-containerのスタイル設定は変更なし)
 
     appContainer.innerHTML = `
         <div class="login-content">
             <h2 class="text-3xl font-bold text-center mb-8 text-gray-800">システムログイン</h2>
 
             <div id="errorMessage" class="text-red-600 text-center mb-6 font-medium h-6">
-                </div>
+            </div>
 
             <form id="loginForm" class="space-y-6" novalidate>
-                <div>
-                    <label for="loginId" class="block text-sm font-medium text-gray-700 mb-1">ログインID</label>
-                    <input
-                        type="text"
-                        id="loginId"
-                        name="loginId"
-                        maxlength="50"
-                        placeholder="ログインIDを入力してください"
-                        required
-                        class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 placeholder-gray-500 text-base focus:outline-none transition duration-150 ease-in-out"
-                    >
-                </div>
-
-                <div>
-                    <label for="password" class="block text-sm font-medium text-gray-700 mb-1">パスワード</label>
-                    <input
-                        type="password"
-                        id="password"
-                        name="password"
-                        maxlength="16"
-                        placeholder="パスワードを入力してください"
-                        required
-                        class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 placeholder-gray-500 text-base focus:outline-none transition duration-150 ease-in-out"
-                    >
-                </div>
-
                 <div>
                     <button
                         type="submit"
@@ -238,16 +208,23 @@ function renderLoginScreen() {
         // エラーメッセージの表示またはログイン成功処理
         if (errorMessage) {
             errorMessageDiv.textContent = errorMessage;
-            showMessage(errorMessage, 'error');
+            // 💡 変更箇所: openMessageModal の呼び出しを削除
+            // openMessageModal('入力エラー', errorMessage, () => {}, true);
         } else {
             // 両方有効な場合
-            showMessage('ログイン成功！ワークフロー申請画面へ遷移します。', 'success');
-            setTimeout(() => {
+            // ログイン成功時は引き続き showMessage を使用 (これはページ上部のモーダルではなく、画面中央のメッセージモーダル)
+            openMessageModal('ログイン成功', 'ワークフロー申請画面へ遷移します。', () => {
                 renderWorkflowScreen();
-            }, 1000); // メッセージ表示後に遷移
+            });
+            // 💡 変更箇所: showMessage を openMessageModal に置き換え、setTimeout を削除
+            // showMessage('ログイン成功！ワークフロー申請画面へ遷移します。', 'success');
+            // setTimeout(() => {
+            //     renderWorkflowScreen();
+            // }, 1000); // メッセージ表示後に遷移
         }
     });
 }
+
 
 /**
  * ワークフロー画面をレンダリングする関数
