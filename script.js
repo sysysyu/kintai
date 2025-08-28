@@ -406,7 +406,6 @@ function loadWorkflowContent(workflowId) {
 
                     <form id="attendanceForm" class="space-y-6">
                         <div class="form-group">
-                            {*--- 💡 変更点: ラベルを「日付」に変更 ---*}
                             <label for="contactDate" class="block text-sm font-medium text-gray-700 mb-1">
                                 日付 <span class="text-red-500">*</span>
                             </label>
@@ -455,7 +454,6 @@ function loadWorkflowContent(workflowId) {
                         </div>
 
                         <div id="lateTimeSection" class="hidden form-group">
-                             {*--- 💡 変更点: 必須マークを追加 ---*}
                             <label for="lateTime" class="block text-sm font-medium text-gray-700 mb-1">
                                 遅刻時間 <span class="text-red-500">*</span>
                             </label>
@@ -465,7 +463,6 @@ function loadWorkflowContent(workflowId) {
                         </div>
 
                         <div id="earlyLeaveTimeSection" class="hidden form-group">
-                            {*--- 💡 変更点: 必須マークを追加 ---*}
                             <label for="earlyLeaveTime" class="block text-sm font-medium text-gray-700 mb-1">
                                 早退時間 (HH:mm) <span class="text-red-500">*</span>
                             </label>
@@ -475,8 +472,16 @@ function loadWorkflowContent(workflowId) {
                             <p id="earlyLeaveTimeError" class="error-message hidden">有効な時間（HH:mm）を入力してください。</p>
                         </div>
 
+                        <div id="middleLeaveTimeSection" class="hidden form-group">
+                            <label for="middleLeaveTime" class="block text-sm font-medium text-gray-700 mb-1">
+                                中抜け時間 <span class="text-red-500">*</span>
+                            </label>
+                            <select id="middleLeaveTime" name="middleLeaveTime"
+                                    class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                            </select>
+                        </div>
+
                         <div id="substituteDateSection" class="hidden form-group">
-                            {*--- 💡 変更点: 必須マークを追加 ---*}
                             <label for="substituteDate" class="block text-sm font-medium text-gray-700 mb-1">
                                 代休消化日 <span class="text-red-500">*</span>
                             </label>
@@ -488,7 +493,6 @@ function loadWorkflowContent(workflowId) {
                         </div>
 
                         <div class="form-group">
-                            {*--- 💡 変更点: (任意)を削除し、必須マークを追加 ---*}
                             <label for="reason" class="block text-sm font-medium text-gray-700 mb-1">
                                 理由 <span class="text-red-500">*</span>
                             </label>
@@ -806,10 +810,13 @@ function addAttendanceFormListeners() {
     const substituteDateSection = document.getElementById('substituteDateSection');
     const lateTimeSelect = document.getElementById('lateTime');
     const submitButton = document.getElementById('submitButton_attendance');
+    const middleLeaveTimeSection = document.getElementById('middleLeaveTimeSection');
+    const middleLeaveTimeSelect = document.getElementById('middleLeaveTime');
 
     // 初期表示設定
     updateAttendanceFormSections();
-    generateLateTimeOptions();
+    generateTimeOptions(lateTimeSelect);
+    generateTimeOptions(middleLeaveTimeSelect);
 
     // 理由の選択が変更されたときの処理
     reasonTypeRadios.forEach(radio => {
@@ -824,7 +831,7 @@ function addAttendanceFormListeners() {
             '2': [], // 欠勤
             '3': [lateTimeSection], // 遅刻
             '4': [earlyLeaveTimeSection], // 早退
-            '5': [], // 中抜け
+            '5': [middleLeaveTimeSection], // 中抜け
             '6': [] // 忌引き
         };
 
@@ -841,14 +848,13 @@ function addAttendanceFormListeners() {
         }
     }
 
-    // 💡 変更点: 遅刻時間の選択肢を5分おきに生成
-    function generateLateTimeOptions() {
-        lateTimeSelect.innerHTML = '<option value="">選択してください</option>';
+    function generateTimeOptions(selectElement) {
+        selectElement.innerHTML = '<option value="">選択してください</option>';
         for (let i = 5; i <= 60; i += 5) {
             const option = document.createElement('option');
             option.value = i;
             option.textContent = `${i}分`;
-            lateTimeSelect.appendChild(option);
+            selectElement.appendChild(option);
         }
     }
 
@@ -861,8 +867,8 @@ function addAttendanceFormListeners() {
             const earlyLeaveTime = document.getElementById('earlyLeaveTime').value;
             const substituteDate = document.getElementById('substituteDate').value;
             const reason = document.getElementById('reason').value.trim();
+            const middleLeaveTime = document.getElementById('middleLeaveTime').value;
 
-            // 💡 変更点: バリデーションロジックを強化
             const errorMessages = [];
             if (!contactDate) {
                 errorMessages.push('日付を入力してください。');
@@ -881,6 +887,9 @@ function addAttendanceFormListeners() {
             if (reasonType === '4' && !earlyLeaveTime.trim()) {
                 errorMessages.push('早退時間を入力してください。');
             }
+            if (reasonType === '5' && !middleLeaveTime) {
+                errorMessages.push('中抜け時間を選択してください。');
+            }
 
             if (errorMessages.length > 0) {
                 const errorMessageHtml = errorMessages.join('<br>');
@@ -895,6 +904,7 @@ function addAttendanceFormListeners() {
                     <p><strong>事由:</strong> ${getReasonText(reasonType)}</p>
                     ${reasonType === '3' ? `<p><strong>遅刻時間:</strong> ${lateTime}分</p>` : ''}
                     ${reasonType === '4' ? `<p><strong>早退時間:</strong> ${earlyLeaveTime}</p>` : ''}
+                    ${reasonType === '5' ? `<p><strong>中抜け時間:</strong> ${middleLeaveTime}分</p>` : ''}
                     ${reasonType === '1' ? `<p><strong>代休消化日:</strong> ${substituteDate}</p>` : ''}
                     <p><strong>理由:</strong> ${reason}</p>
                 </div>
