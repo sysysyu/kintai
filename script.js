@@ -143,17 +143,20 @@ globalCloseMessageModalButton.addEventListener('click', closeMessageModal);
  * ログイン画面をレンダリングする関数
  */
 function renderLoginScreen() {
-    // ... (中略 - app-containerのスタイル設定は変更なし)
+    // app-containerのスタイルをログイン画面用に調整
+    appContainer.classList.add('max-w-lg'); // 💡 変更点: 'max-w-md' から 'max-w-lg' へ変更
+    appContainer.classList.add('p-8');
+    appContainer.classList.remove('max-w-screen-lg');
+    appContainer.classList.remove('p-6');
 
-appContainer.innerHTML = `
+    appContainer.innerHTML = `
         <div class="login-content">
             <h2 class="text-3xl font-bold text-center mb-8 text-gray-800">システムログイン</h2>
 
-            <div id="errorMessage" class="text-red-600 text-center mb-6 font-medium h-6">
-                </div>
+            <div id="errorMessage" class="text-red-600 text-center mb-6 font-medium">
+            </div>
 
             <form id="loginForm" class="space-y-6" novalidate>
-                
                 <div>
                     <label for="loginId" class="block text-sm font-medium text-gray-700 mb-1">ログインID</label>
                     <input
@@ -235,19 +238,9 @@ appContainer.innerHTML = `
         // エラーメッセージの表示またはログイン成功処理
         if (errorMessage) {
             errorMessageDiv.textContent = errorMessage;
-            // 💡 変更箇所: openMessageModal の呼び出しを削除
-            // openMessageModal('入力エラー', errorMessage, () => {}, true);
         } else {
             // 両方有効な場合
-            // ログイン成功時は引き続き showMessage を使用 (これはページ上部のモーダルではなく、画面中央のメッセージモーダル)
-            openMessageModal('ログイン成功', 'ワークフロー申請画面へ遷移します。', () => {
-                renderWorkflowScreen();
-            });
-            // 💡 変更箇所: showMessage を openMessageModal に置き換え、setTimeout を削除
-            // showMessage('ログイン成功！ワークフロー申請画面へ遷移します。', 'success');
-            // setTimeout(() => {
-            //     renderWorkflowScreen();
-            // }, 1000); // メッセージ表示後に遷移
+            renderWorkflowScreen();
         }
     });
 }
