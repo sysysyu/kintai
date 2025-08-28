@@ -240,6 +240,7 @@ function renderLoginScreen() {
             errorMessageDiv.textContent = errorMessage;
         } else {
             // 両方有効な場合
+            sessionStorage.setItem('isLoggedIn', 'true');
             renderWorkflowScreen();
         }
     });
@@ -340,6 +341,7 @@ function renderWorkflowScreen() {
     // 2. ログアウトボタンの機能 (ログイン画面に戻る)
     logoutButton.addEventListener('click', () => {
         if (confirm('ログアウトしますか？')) {
+            sessionStorage.removeItem('isLoggedIn');
             renderLoginScreen();
         }
     });
@@ -1260,5 +1262,9 @@ function clearFormInputs(form) {
 
 // ページ読み込み完了時に最初にログイン画面をレンダリング
 document.addEventListener('DOMContentLoaded', () => {
-    renderLoginScreen();
+    if (sessionStorage.getItem('isLoggedIn') === 'true') {
+        renderWorkflowScreen();
+    } else {
+        renderLoginScreen();
+    }
 });
