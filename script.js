@@ -571,6 +571,9 @@ function loadWorkflowContent(workflowId) {
                                 送信確認
                             </button>
                         </div>
+                        <div class="text-center">
+                           <p id="addCandidateError" class="error-message hidden"></p>
+                        </div>
                     </form>
                 </div>
             `;
@@ -947,10 +950,9 @@ function getReasonText(reasonValue) {
 
 function addSubscriptionFormListeners() {
     const subscriptionForm = document.getElementById('subscription-form');
-    const transitStation1Input = document.getElementById('transitStation1');
-    const transitStation2Wrapper = document.getElementById('transitStation2Wrapper');
     const addCandidateBtn = document.getElementById('addCandidateBtn');
     const additionalRoutesContainer = document.getElementById('additional-routes-container');
+    const addCandidateError = document.getElementById('addCandidateError');
     let additionalRouteCount = 0;
 
     flatpickr(".purchase-date-picker", {
@@ -969,25 +971,30 @@ function addSubscriptionFormListeners() {
 
     const setupTransitStationLogic = (transit1, transit2WrapperId) => {
         const transit2Wrapper = document.getElementById(transit2WrapperId);
+        const transit2Input = transit2Wrapper.querySelector('input');
+
         const showTransit2 = () => {
             if (transit1.value.trim() !== '') {
+                transit2Input.value = ''; // 既に入力されている値をクリアする（バグ修正）
                 transit2Wrapper.classList.remove('hidden');
                 transit1.removeEventListener('blur', showTransit2);
                 transit1.removeEventListener('keydown', handleEnterKey);
             }
         };
+
         const handleEnterKey = (e) => {
             if (e.key === 'Enter') {
                 e.preventDefault();
                 showTransit2();
-                transit2Wrapper.querySelector('input').focus();
+                transit2Input.focus();
             }
         };
+
         transit1.addEventListener('blur', showTransit2);
         transit1.addEventListener('keydown', handleEnterKey);
     };
     
-    setupTransitStationLogic(transitStation1Input, 'transitStation2Wrapper');
+    setupTransitStationLogic(document.getElementById('transitStation1'), 'transitStation2Wrapper');
 
     const limitAmountInput = (inputElement) => {
         inputElement.addEventListener('input', () => {
@@ -1003,9 +1010,13 @@ function addSubscriptionFormListeners() {
     limitAmountInput(document.getElementById('primaryAmount'));
 
     addCandidateBtn.addEventListener('click', () => {
+        addCandidateError.classList.add('hidden');
         if (additionalRouteCount >= 3) {
+            addCandidateError.textContent = '候補経路は3つまでしか追加できません。';
+            addCandidateError.classList.remove('hidden');
             return;
         }
+
         additionalRouteCount++;
         const newRouteHtml = `
             <div class="p-4 border border-dashed border-gray-300 rounded-lg space-y-4 additional-route">
@@ -1032,10 +1043,6 @@ function addSubscriptionFormListeners() {
         `;
         additionalRoutesContainer.insertAdjacentHTML('beforeend', newRouteHtml);
         
-        if (additionalRouteCount >= 3) {
-            addCandidateBtn.disabled = true;
-        }
-
         const newTransit1 = document.getElementById(`additional_transit_station_1_${additionalRouteCount}`);
         setupTransitStationLogic(newTransit1, `additional_transit_station_2_wrapper_${additionalRouteCount}`);
         
@@ -1098,7 +1105,7 @@ function addSubscriptionFormListeners() {
         const formData = new FormData(subscriptionForm);
         
         const primaryTransitStations = formData.getAll('primary_transit_stations[]').filter(s => s.trim() !== '');
-        let primaryTransitDisplay = 'なし';
+        let primaryTransitDisplay = '';
         if (primaryTransitStations.length > 0) {
             primaryTransitDisplay = primaryTransitStations.map((s, i) => `<li><strong>経由駅${i + 1}:</strong> ${s}</li>`).join('');
         } else {
@@ -1124,9 +1131,10 @@ function addSubscriptionFormListeners() {
             confirmHtml += `<div class="mt-4 space-y-3">`;
             additionalRoutes.forEach((route, index) => {
                 const routeNum = index + 1;
+
                 const transitStations = formData.getAll(`additional_transit_stations_${routeNum}[]`).filter(s => s.trim() !== '');
-                let transitDisplay = 'なし';
-                 if (transitStations.length > 0) {
+                let transitDisplay = '';
+                if (transitStations.length > 0) {
                     transitDisplay = transitStations.map((s, i) => `<li><strong>経由駅${i + 1}:</strong> ${s}</li>`).join('');
                 } else {
                     transitDisplay = `<li><strong>経由駅:</strong> なし</li>`;
@@ -1138,7 +1146,7 @@ function addSubscriptionFormListeners() {
                 confirmHtml += `
                     <h4 class="font-bold text-gray-800">候補経路 ${routeNum}</h4>
                     <ul class="list-disc list-inside space-y-1 pl-2">
-                         ${transitDisplay}
+                        ${transitDisplay}
                         <li><strong>通勤時間:</strong> ${time}</li>
                         <li><strong>金額:</strong> ${amount ? amount + ' 円' : '未入力'}</li>
                     </ul>
