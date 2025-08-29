@@ -521,6 +521,7 @@ function loadWorkflowContent(workflowId) {
                     <h1 class="text-2xl md:text-3xl font-bold text-gray-800 mb-6 text-center">定期購入</h1>
                     <form id="subscription-form" class="space-y-6">
                         <div class="p-4 border border-gray-300 rounded-lg space-y-4">
+                            <h3 class="text-lg font-semibold text-gray-700">主経路</h3>
                             <div class="form-group">
                                 <label for="purchaseDate" class="font-medium text-gray-700">定期購入日 <span class="text-red-500">*</span></label>
                                 <input type="text" id="purchaseDate" name="purchaseDate" class="w-full mt-1 purchase-date-picker" placeholder="YYYY/MM/DD">
@@ -966,36 +967,56 @@ function addSubscriptionFormListeners() {
         allowInput: true,
     });
 
-    const showTransit2 = () => {
-        if (transitStation1Input.value.trim() !== '') {
-            transitStation2Wrapper.classList.remove('hidden');
-            transitStation1Input.removeEventListener('blur', showTransit2);
-            transitStation1Input.removeEventListener('keydown', handleEnterKey);
-        }
+    const setupTransitStationLogic = (transit1, transit2WrapperId) => {
+        const transit2Wrapper = document.getElementById(transit2WrapperId);
+        const showTransit2 = () => {
+            if (transit1.value.trim() !== '') {
+                transit2Wrapper.classList.remove('hidden');
+                transit1.removeEventListener('blur', showTransit2);
+                transit1.removeEventListener('keydown', handleEnterKey);
+            }
+        };
+        const handleEnterKey = (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                showTransit2();
+                transit2Wrapper.querySelector('input').focus();
+            }
+        };
+        transit1.addEventListener('blur', showTransit2);
+        transit1.addEventListener('keydown', handleEnterKey);
+    };
+    
+    setupTransitStationLogic(transitStation1Input, 'transitStation2Wrapper');
+
+    const limitAmountInput = (inputElement) => {
+        inputElement.addEventListener('input', () => {
+            let value = inputElement.value;
+            value = value.replace(/[^0-9]/g, '');
+            if (value.length > 5) {
+                value = value.slice(0, 5);
+            }
+            inputElement.value = value;
+        });
     };
 
-    const handleEnterKey = (e) => {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            showTransit2();
-            document.getElementById('transitStation2').focus();
-        }
-    };
-
-    transitStation1Input.addEventListener('blur', showTransit2);
-    transitStation1Input.addEventListener('keydown', handleEnterKey);
+    limitAmountInput(document.getElementById('primaryAmount'));
 
     addCandidateBtn.addEventListener('click', () => {
         if (additionalRouteCount >= 3) {
-            addCandidateBtn.disabled = true;
             return;
         }
         additionalRouteCount++;
         const newRouteHtml = `
             <div class="p-4 border border-dashed border-gray-300 rounded-lg space-y-4 additional-route">
+                <h3 class="text-lg font-semibold text-gray-600">候補経路 ${additionalRouteCount}</h3>
                 <div class="form-group">
-                    <label class="font-medium text-gray-700">経由駅</label>
-                    <input type="text" name="additional_transit_station_${additionalRouteCount}" class="w-full mt-1" placeholder="例: 池袋">
+                    <label for="additional_transit_station_1_${additionalRouteCount}" class="font-medium text-gray-700">経由駅 1</label>
+                    <input type="text" id="additional_transit_station_1_${additionalRouteCount}" name="additional_transit_stations_${additionalRouteCount}[]" class="w-full mt-1" placeholder="例: 池袋">
+                </div>
+                <div class="form-group hidden" id="additional_transit_station_2_wrapper_${additionalRouteCount}">
+                    <label for="additional_transit_station_2_${additionalRouteCount}" class="font-medium text-gray-700">経由駅 2</label>
+                    <input type="text" id="additional_transit_station_2_${additionalRouteCount}" name="additional_transit_stations_${additionalRouteCount}[]" class="w-full mt-1" placeholder="例: 大崎">
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div class="form-group">
@@ -1004,7 +1025,7 @@ function addSubscriptionFormListeners() {
                     </div>
                     <div class="form-group">
                         <label class="font-medium text-gray-700">金額</label>
-                        <input type="number" name="additional_amount_${additionalRouteCount}" class="w-full mt-1" placeholder="例: 12000">
+                        <input type="number" id="additional_amount_${additionalRouteCount}" name="additional_amount_${additionalRouteCount}" class="w-full mt-1" placeholder="例: 12000">
                     </div>
                 </div>
             </div>
@@ -1014,6 +1035,12 @@ function addSubscriptionFormListeners() {
         if (additionalRouteCount >= 3) {
             addCandidateBtn.disabled = true;
         }
+
+        const newTransit1 = document.getElementById(`additional_transit_station_1_${additionalRouteCount}`);
+        setupTransitStationLogic(newTransit1, `additional_transit_station_2_wrapper_${additionalRouteCount}`);
+        
+        const newAmountInput = document.getElementById(`additional_amount_${additionalRouteCount}`);
+        limitAmountInput(newAmountInput);
 
         const newTimePickers = additionalRoutesContainer.querySelectorAll('.purchase-time-picker:not(.flatpickr-input)');
         flatpickr(newTimePickers, {
@@ -1055,24 +1082,27 @@ function addSubscriptionFormListeners() {
         if (!primaryCommuteTime.value.trim()) {
             showError('primaryCommuteTime', '通勤時間を入力してください。');
         } else if (!commuteTimeRegex.test(primaryCommuteTime.value.trim())) {
-            showError('primaryCommuteTime', '通勤時間は半角数字とコロンのみで入力してください。');
+            showError('primaryCommuteTime', '半角数字とコロンのみで入力してください。');
         }
 
         if (!primaryAmount.value.trim()) {
             showError('primaryAmount', '金額を入力してください。');
         } else if (!amountRegex.test(primaryAmount.value.trim())) {
-            showError('primaryAmount', '金額は半角数字で入力してください。');
+            showError('primaryAmount', '半角数字で入力してください。');
         } else if (primaryAmount.value.trim().length > 5) {
-            showError('primaryAmount', '金額は5桁以内で入力してください。');
+            showError('primaryAmount', '5桁以内で入力してください。');
         }
 
         if (!isValid) return;
 
         const formData = new FormData(subscriptionForm);
-        const transitStations = formData.getAll('primary_transit_stations[]').filter(s => s.trim() !== '');
-        let transitDisplay = 'なし';
-        if (transitStations.length > 0) {
-            transitDisplay = `<br>${transitStations.map((s, i) => `&nbsp;&nbsp;経由駅${i + 1}: ${s}`).join('<br>')}`;
+        
+        const primaryTransitStations = formData.getAll('primary_transit_stations[]').filter(s => s.trim() !== '');
+        let primaryTransitDisplay = 'なし';
+        if (primaryTransitStations.length > 0) {
+            primaryTransitDisplay = primaryTransitStations.map((s, i) => `<li><strong>経由駅${i + 1}:</strong> ${s}</li>`).join('');
+        } else {
+             primaryTransitDisplay = `<li><strong>経由駅:</strong> なし</li>`;
         }
 
         let confirmHtml = `
@@ -1082,7 +1112,7 @@ function addSubscriptionFormListeners() {
                 <ul class="list-disc list-inside space-y-1 pl-2">
                     <li><strong>最寄駅:</strong> ${formData.get('nearestStation')}</li>
                     <li><strong>目的駅:</strong> ${formData.get('destinationStation')}</li>
-                    <li><strong>経由駅:</strong> ${transitDisplay}</li>
+                    ${primaryTransitDisplay}
                     <li><strong>通勤時間:</strong> ${formData.get('primaryCommuteTime')}</li>
                     <li><strong>金額:</strong> ${formData.get('primaryAmount')} 円</li>
                 </ul>
@@ -1094,14 +1124,21 @@ function addSubscriptionFormListeners() {
             confirmHtml += `<div class="mt-4 space-y-3">`;
             additionalRoutes.forEach((route, index) => {
                 const routeNum = index + 1;
-                const transit = formData.get(`additional_transit_station_${routeNum}`) || 'なし';
+                const transitStations = formData.getAll(`additional_transit_stations_${routeNum}[]`).filter(s => s.trim() !== '');
+                let transitDisplay = 'なし';
+                 if (transitStations.length > 0) {
+                    transitDisplay = transitStations.map((s, i) => `<li><strong>経由駅${i + 1}:</strong> ${s}</li>`).join('');
+                } else {
+                    transitDisplay = `<li><strong>経由駅:</strong> なし</li>`;
+                }
+
                 const time = formData.get(`additional_commute_time_${routeNum}`) || '未入力';
                 const amount = formData.get(`additional_amount_${routeNum}`) || '未入力';
 
                 confirmHtml += `
                     <h4 class="font-bold text-gray-800">候補経路 ${routeNum}</h4>
                     <ul class="list-disc list-inside space-y-1 pl-2">
-                        <li><strong>経由駅:</strong> ${transit}</li>
+                         ${transitDisplay}
                         <li><strong>通勤時間:</strong> ${time}</li>
                         <li><strong>金額:</strong> ${amount ? amount + ' 円' : '未入力'}</li>
                     </ul>
@@ -1112,15 +1149,17 @@ function addSubscriptionFormListeners() {
 
         openConfirmationModal('定期購入申請の確認', confirmHtml, () => {
             openMessageModal('送信成功', '定期購入申請を最終送信しました！', () => {
+                const transit1 = document.getElementById('transitStation1');
+                const transit2Wrapper = document.getElementById('transitStation2Wrapper');
                 subscriptionForm.reset();
                 additionalRoutesContainer.innerHTML = '';
-                transitStation2Wrapper.classList.add('hidden');
+                transit2Wrapper.classList.add('hidden');
                 addCandidateBtn.disabled = false;
                 
-                transitStation1Input.removeEventListener('blur', showTransit2);
-                transitStation1Input.removeEventListener('keydown', handleEnterKey);
-                transitStation1Input.addEventListener('blur', showTransit2);
-                transitStation1Input.addEventListener('keydown', handleEnterKey);
+                transit1.removeEventListener('blur', showTransit2);
+                transit1.removeEventListener('keydown', handleEnterKey);
+                transit1.addEventListener('blur', showTransit2);
+                transit1.addEventListener('keydown', handleEnterKey);
             });
         });
     });
