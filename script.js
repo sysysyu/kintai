@@ -529,21 +529,21 @@ function loadWorkflowContent(workflowId) {
                             </div>
                             <div class="form-group">
                                 <label for="nearestStation" class="font-medium text-gray-700">最寄駅 <span class="text-red-500">*</span></label>
-                                <input type="text" id="nearestStation" name="nearestStation" class="w-full mt-1" placeholder="例: 新宿">
+                                <input type="text" id="nearestStation" name="nearestStation" class="w-full mt-1" placeholder="例: 新宿" autocomplete="off">
                                 <p class="error-message hidden" id="nearestStationError"></p>
                             </div>
                             <div class="form-group">
                                 <label for="destinationStation" class="font-medium text-gray-700">目的駅 <span class="text-red-500">*</span></label>
-                                <input type="text" id="destinationStation" name="destinationStation" class="w-full mt-1" placeholder="例: 東京">
+                                <input type="text" id="destinationStation" name="destinationStation" class="w-full mt-1" placeholder="例: 東京" autocomplete="off">
                                 <p class="error-message hidden" id="destinationStationError"></p>
                             </div>
                             <div class="form-group">
                                 <label for="transitStation1" class="font-medium text-gray-700">経由駅 1</label>
-                                <input type="text" id="transitStation1" name="primary_transit_stations[]" class="w-full mt-1" placeholder="例: 渋谷">
+                                <input type="text" id="transitStation1" name="primary_transit_stations[]" class="w-full mt-1" placeholder="例: 渋谷" autocomplete="off">
                             </div>
                             <div class="form-group hidden" id="transitStation2Wrapper">
                                 <label for="transitStation2" class="font-medium text-gray-700">経由駅 2</label>
-                                <input type="text" id="transitStation2" name="primary_transit_stations[]" class="w-full mt-1" placeholder="例: 品川">
+                                <input type="text" id="transitStation2" name="primary_transit_stations[]" class="w-full mt-1" placeholder="例: 品川" autocomplete="off">
                             </div>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div class="form-group">
@@ -975,7 +975,9 @@ function addSubscriptionFormListeners() {
 
         const showTransit2 = () => {
             if (transit1.value.trim() !== '') {
-                transit2Input.value = ''; // 既に入力されている値をクリアする（バグ修正）
+                setTimeout(() => {
+                    transit2Input.value = '';
+                }, 0);
                 transit2Wrapper.classList.remove('hidden');
                 transit1.removeEventListener('blur', showTransit2);
                 transit1.removeEventListener('keydown', handleEnterKey);
@@ -1023,11 +1025,11 @@ function addSubscriptionFormListeners() {
                 <h3 class="text-lg font-semibold text-gray-600">候補経路 ${additionalRouteCount}</h3>
                 <div class="form-group">
                     <label for="additional_transit_station_1_${additionalRouteCount}" class="font-medium text-gray-700">経由駅 1</label>
-                    <input type="text" id="additional_transit_station_1_${additionalRouteCount}" name="additional_transit_stations_${additionalRouteCount}[]" class="w-full mt-1" placeholder="例: 池袋">
+                    <input type="text" id="additional_transit_station_1_${additionalRouteCount}" name="additional_transit_stations_${additionalRouteCount}[]" class="w-full mt-1" placeholder="例: 池袋" autocomplete="off">
                 </div>
                 <div class="form-group hidden" id="additional_transit_station_2_wrapper_${additionalRouteCount}">
                     <label for="additional_transit_station_2_${additionalRouteCount}" class="font-medium text-gray-700">経由駅 2</label>
-                    <input type="text" id="additional_transit_station_2_${additionalRouteCount}" name="additional_transit_stations_${additionalRouteCount}[]" class="w-full mt-1" placeholder="例: 大崎">
+                    <input type="text" id="additional_transit_station_2_${additionalRouteCount}" name="additional_transit_stations_${additionalRouteCount}[]" class="w-full mt-1" placeholder="例: 大崎" autocomplete="off">
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div class="form-group">
@@ -1131,7 +1133,7 @@ function addSubscriptionFormListeners() {
             confirmHtml += `<div class="mt-4 space-y-3">`;
             additionalRoutes.forEach((route, index) => {
                 const routeNum = index + 1;
-
+                
                 const transitStations = formData.getAll(`additional_transit_stations_${routeNum}[]`).filter(s => s.trim() !== '');
                 let transitDisplay = '';
                 if (transitStations.length > 0) {
