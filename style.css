@@ -176,3 +176,16 @@ body {
     margin-top: 10px;
     border-radius: 5px;
 }
+
+/* 💡 変更点: ここから追加 */
+/* Chrome, Safari, Edge の場合に矢印を非表示 */
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox の場合に矢印を非表示 */
+input[type=number] {
+  -moz-appearance: textfield;
+}
