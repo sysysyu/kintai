@@ -520,9 +520,12 @@ function loadWorkflowContent(workflowId) {
                 <div class="bg-white p-6 md:p-8 rounded-lg shadow-xl w-full max-w-2xl mx-auto">
                     <h1 class="text-2xl md:text-3xl font-bold text-gray-800 mb-6 text-center">定期購入</h1>
                     <form id="subscription-form" class="space-y-6">
-
                         <div class="p-4 border border-gray-300 rounded-lg space-y-4">
-                            <h3 class="text-lg font-semibold text-gray-700">主経路</h3>
+                            <div class="form-group">
+                                <label for="purchaseDate" class="font-medium text-gray-700">定期購入日 <span class="text-red-500">*</span></label>
+                                <input type="text" id="purchaseDate" name="purchaseDate" class="w-full mt-1 purchase-date-picker" placeholder="YYYY/MM/DD">
+                                <p class="error-message hidden" id="purchaseDateError"></p>
+                            </div>
                             <div class="form-group">
                                 <label for="nearestStation" class="font-medium text-gray-700">最寄駅 <span class="text-red-500">*</span></label>
                                 <input type="text" id="nearestStation" name="nearestStation" class="w-full mt-1">
@@ -543,14 +546,8 @@ function loadWorkflowContent(workflowId) {
                             </div>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div class="form-group">
-                                    <label for="primaryCommuteTime" class="font-medium text-gray-700">通勤時間 <span class="text-red-500">*</span></label>
-                                    <select id="primaryCommuteTime" name="primaryCommuteTime" class="w-full mt-1">
-                                        <option value="">選択してください</option>
-                                        <option value="15分未満">15分未満</option>
-                                        <option value="15分-30分">15分-30分</option>
-                                        <option value="30分-1時間">30分-1時間</option>
-                                        <option value="1時間以上">1時間以上</option>
-                                    </select>
+                                    <label for="primaryCommuteTime" class="font-medium text-gray-700">通勤時間(分) <span class="text-red-500">*</span></label>
+                                    <input type="number" id="primaryCommuteTime" name="primaryCommuteTime" class="w-full mt-1" placeholder="例: 35">
                                     <p class="error-message hidden" id="primaryCommuteTimeError"></p>
                                 </div>
                                 <div class="form-group">
@@ -565,11 +562,11 @@ function loadWorkflowContent(workflowId) {
 
                         <div class="flex justify-center space-x-4 mt-6">
                             <button type="button" id="addCandidateBtn"
-                                    class="px-6 py-3 bg-blue-600 text-white font-semibold rounded-md shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-300 ease-in-out">
+                                    class="px-6 py-3 bg-blue-600 text-white font-semibold rounded-md shadow-md hover:bg-blue-700">
                                 候補経路を追加
                             </button>
                             <button type="submit"
-                                    class="px-6 py-3 bg-green-600 text-white font-semibold rounded-md shadow-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition duration-300 ease-in-out">
+                                    class="px-6 py-3 bg-green-600 text-white font-semibold rounded-md shadow-md hover:bg-green-700">
                                 送信確認
                             </button>
                         </div>
@@ -955,36 +952,41 @@ function addSubscriptionFormListeners() {
     const additionalRoutesContainer = document.getElementById('additional-routes-container');
     let additionalRouteCount = 0;
 
-    // 経由駅1が入力されたら経由駅2を表示する処理
-    const handleTransitInput = () => {
+    flatpickr(".purchase-date-picker", {
+        dateFormat: "Y/m/d",
+        allowInput: true,
+    });
+
+    const showTransit2 = () => {
         if (transitStation1Input.value.trim() !== '') {
             transitStation2Wrapper.classList.remove('hidden');
-            // 一度表示したら、このイベントは不要なので削除
-            transitStation1Input.removeEventListener('input', handleTransitInput);
+            transitStation1Input.removeEventListener('blur', showTransit2);
+            transitStation1Input.removeEventListener('keydown', handleEnterKey);
         }
     };
-    transitStation1Input.addEventListener('input', handleTransitInput);
 
-    // 「候補経路を追加」ボタンの処理
+    const handleEnterKey = (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            showTransit2();
+        }
+    };
+
+    transitStation1Input.addEventListener('blur', showTransit2);
+    transitStation1Input.addEventListener('keydown', handleEnterKey);
+
     addCandidateBtn.addEventListener('click', () => {
         additionalRouteCount++;
         const newRouteHtml = `
             <div class="p-4 border border-dashed border-gray-300 rounded-lg space-y-4 additional-route">
-                <h3 class="text-lg font-semibold text-gray-600">候補経路 ${additionalRouteCount}</h3>
                 <div class="form-group">
                     <label class="font-medium text-gray-700">経由駅</label>
                     <input type="text" name="additional_transit_station_${additionalRouteCount}" class="w-full mt-1">
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div class="form-group">
-                        <label class="font-medium text-gray-700">通勤時間</label>
-                        <select name="additional_commute_time_${additionalRouteCount}" class="w-full mt-1">
-                            <option value="">選択してください</option>
-                            <option value="15分未満">15分未満</option>
-                            <option value="15分-30分">15分-30分</option>
-                            <option value="30分-1時間">30分-1時間</option>
-                            <option value="1時間以上">1時間以上</option>
-                        </select>
+                        <label class="font-medium text-gray-700">通勤時間(分)</label>
+                        <input type="number" name="additional_commute_time_${additionalRouteCount}" class="w-full mt-1" placeholder="例: 35">
                     </div>
                     <div class="form-group">
                         <label class="font-medium text-gray-700">金額</label>
@@ -996,15 +998,12 @@ function addSubscriptionFormListeners() {
         additionalRoutesContainer.insertAdjacentHTML('beforeend', newRouteHtml);
     });
 
-    // フォーム送信時の処理
     subscriptionForm.addEventListener('submit', (e) => {
         e.preventDefault();
         let isValid = true;
         
-        // エラーメッセージをリセット
         document.querySelectorAll('#subscription-form .error-message').forEach(el => el.classList.add('hidden'));
 
-        // エラー表示用のヘルパー関数
         const showError = (elementId, message) => {
             const errorElement = document.getElementById(elementId + "Error");
             if (errorElement) {
@@ -1014,29 +1013,30 @@ function addSubscriptionFormListeners() {
             isValid = false;
         };
         
-        // 主経路の必須項目チェック
+        const purchaseDate = document.getElementById('purchaseDate');
         const nearestStation = document.getElementById('nearestStation');
         const destinationStation = document.getElementById('destinationStation');
         const primaryCommuteTime = document.getElementById('primaryCommuteTime');
         const primaryAmount = document.getElementById('primaryAmount');
 
+        if (!purchaseDate.value.trim()) showError('purchaseDate', '定期購入日を入力してください。');
         if (!nearestStation.value.trim()) showError('nearestStation', '最寄駅を入力してください。');
         if (!destinationStation.value.trim()) showError('destinationStation', '目的駅を入力してください。');
-        if (!primaryCommuteTime.value) showError('primaryCommuteTime', '通勤時間を選択してください。');
-        if (!primaryAmount.value) showError('primaryAmount', '金額を入力してください。');
+        if (!primaryCommuteTime.value.trim()) showError('primaryCommuteTime', '通勤時間を入力してください。');
+        if (!primaryAmount.value.trim()) showError('primaryAmount', '金額を入力してください。');
 
         if (!isValid) return;
 
-        // 確認モーダル用のデータ収集とHTML生成
         const formData = new FormData(subscriptionForm);
         let confirmHtml = `
             <div class="space-y-3">
-                <h4 class="font-bold text-gray-800">主経路</h4>
+                <p><strong>定期購入日:</strong> ${formData.get('purchaseDate')}</p>
+                <h4 class="font-bold text-gray-800 pt-2">主経路</h4>
                 <ul class="list-disc list-inside space-y-1 pl-2">
                     <li><strong>最寄駅:</strong> ${formData.get('nearestStation')}</li>
                     <li><strong>目的駅:</strong> ${formData.get('destinationStation')}</li>
                     <li><strong>経由駅:</strong> ${formData.getAll('primary_transit_stations[]').filter(s => s).join(', ') || 'なし'}</li>
-                    <li><strong>通勤時間:</strong> ${formData.get('primaryCommuteTime')}</li>
+                    <li><strong>通勤時間:</strong> ${formData.get('primaryCommuteTime')} 分</li>
                     <li><strong>金額:</strong> ${formData.get('primaryAmount')} 円</li>
                 </ul>
             </div>
@@ -1048,14 +1048,14 @@ function addSubscriptionFormListeners() {
             additionalRoutes.forEach((route, index) => {
                 const routeNum = index + 1;
                 const transit = formData.get(`additional_transit_station_${routeNum}`) || 'なし';
-                const time = formData.get(`additional_commute_time_${routeNum}`) || '未選択';
+                const time = formData.get(`additional_commute_time_${routeNum}`) || '未入力';
                 const amount = formData.get(`additional_amount_${routeNum}`) || '未入力';
 
                 confirmHtml += `
                     <h4 class="font-bold text-gray-800">候補経路 ${routeNum}</h4>
                     <ul class="list-disc list-inside space-y-1 pl-2">
                         <li><strong>経由駅:</strong> ${transit}</li>
-                        <li><strong>通勤時間:</strong> ${time}</li>
+                        <li><strong>通勤時間:</strong> ${time ? time + ' 分' : '未入力'}</li>
                         <li><strong>金額:</strong> ${amount ? amount + ' 円' : '未入力'}</li>
                     </ul>
                 `;
@@ -1065,11 +1065,13 @@ function addSubscriptionFormListeners() {
 
         openConfirmationModal('定期購入申請の確認', confirmHtml, () => {
             openMessageModal('送信成功', '定期購入申請を最終送信しました！', () => {
-                // フォームをリセットし、動的に追加した要素もクリア
                 subscriptionForm.reset();
                 additionalRoutesContainer.innerHTML = '';
                 transitStation2Wrapper.classList.add('hidden');
-                transitStation1Input.addEventListener('input', handleTransitInput); // イベントリスナーを再登録
+                transitStation1Input.removeEventListener('blur', showTransit2);
+                transitStation1Input.removeEventListener('keydown', handleEnterKey);
+                transitStation1Input.addEventListener('blur', showTransit2);
+                transitStation1Input.addEventListener('keydown', handleEnterKey);
             });
         });
     });
