@@ -407,14 +407,14 @@ function loadWorkflowContent(workflowId) {
                     <form id="attendanceForm" class="space-y-6">
                         <div class="form-group">
                             <label for="contactDate" class="block text-sm font-medium text-gray-700 mb-1">
-                                連絡日付 <span class="text-red-500">*</span>
+                                日付 <span class="text-red-500">*</span>
                             </label>
                             <div class="relative">
-                                <input type="date" id="contactDate" name="contactDate"
-                                       class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm appearance-none pr-10"
-                                       required>
+                                <input type="text" id="contactDate" name="contactDate"
+                                       class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm attendance-date-picker"
+                                       placeholder="YYYY/MM/DD" required>
                             </div>
-                            <p id="contactDateError" class="error-message hidden">有効な日付（YYYY/MM/DD）を入力してください。</p>
+                            <p id="contactDateError" class="error-message hidden"></p>
                         </div>
 
                         <div class="form-group">
@@ -455,42 +455,54 @@ function loadWorkflowContent(workflowId) {
 
                         <div id="lateTimeSection" class="hidden form-group">
                             <label for="lateTime" class="block text-sm font-medium text-gray-700 mb-1">
-                                遅刻時間
+                                遅刻時間 <span class="text-red-500">*</span>
                             </label>
                             <select id="lateTime" name="lateTime"
                                     class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
                                 </select>
+                            <p id="lateTimeError" class="error-message hidden"></p>
                         </div>
 
                         <div id="earlyLeaveTimeSection" class="hidden form-group">
                             <label for="earlyLeaveTime" class="block text-sm font-medium text-gray-700 mb-1">
-                                早退時間 (HH:mm)
+                                早退時間 (HH:mm) <span class="text-red-500">*</span>
                             </label>
                             <input type="text" id="earlyLeaveTime" name="earlyLeaveTime" maxlength="5"
                                    class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                                    placeholder="例: 17:30">
-                            <p id="earlyLeaveTimeError" class="error-message hidden">有効な時間（HH:mm）を入力してください。</p>
+                            <p id="earlyLeaveTimeError" class="error-message hidden"></p>
+                        </div>
+
+                        <div id="middleLeaveTimeSection" class="hidden form-group">
+                            <label for="middleLeaveTime" class="block text-sm font-medium text-gray-700 mb-1">
+                                中抜け時間 <span class="text-red-500">*</span>
+                            </label>
+                            <select id="middleLeaveTime" name="middleLeaveTime"
+                                    class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                            </select>
+                            <p id="middleLeaveTimeError" class="error-message hidden"></p>
                         </div>
 
                         <div id="substituteDateSection" class="hidden form-group">
                             <label for="substituteDate" class="block text-sm font-medium text-gray-700 mb-1">
-                                代休消化日
+                                代休消化日 <span class="text-red-500">*</span>
                             </label>
                             <div class="relative">
-                                <input type="date" id="substituteDate" name="substituteDate"
-                                       class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm appearance-none pr-10">
+                                <input type="text" id="substituteDate" name="substituteDate"
+                                       class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm attendance-date-picker"
+                                       placeholder="YYYY/MM/DD">
                             </div>
-                            <p id="substituteDateError" class="error-message hidden">有効な日付（YYYY/MM/DD）を入力してください。</p>
+                            <p id="substituteDateError" class="error-message hidden"></p>
                         </div>
 
                         <div class="form-group">
                             <label for="reason" class="block text-sm font-medium text-gray-700 mb-1">
-                                理由 (任意)
+                                理由 <span class="text-red-500">*</span>
                             </label>
                             <textarea id="reason" name="reason" rows="4" maxlength="256"
                                       class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                                       placeholder="勤怠連絡の理由を入力してください（最大256文字）"></textarea>
-                            <p id="reasonError" class="error-message hidden">理由の文字数が制限を超えています（最大256文字）。</p>
+                            <p id="reasonError" class="error-message hidden"></p>
                         </div>
 
                         <div class="flex justify-center mt-6">
@@ -801,10 +813,19 @@ function addAttendanceFormListeners() {
     const substituteDateSection = document.getElementById('substituteDateSection');
     const lateTimeSelect = document.getElementById('lateTime');
     const submitButton = document.getElementById('submitButton_attendance');
+    const middleLeaveTimeSection = document.getElementById('middleLeaveTimeSection');
+    const middleLeaveTimeSelect = document.getElementById('middleLeaveTime');
+
+    // Flatpickrを初期化
+    flatpickr(".attendance-date-picker", {
+        dateFormat: "Y/m/d", // 表示とデータのフォーマットを YYYY/MM/DD に
+        allowInput: true,    // 手入力を許可する
+    });
 
     // 初期表示設定
     updateAttendanceFormSections();
-    generateLateTimeOptions();
+    generateTimeOptions(lateTimeSelect);
+    generateTimeOptions(middleLeaveTimeSelect);
 
     // 理由の選択が変更されたときの処理
     reasonTypeRadios.forEach(radio => {
@@ -814,21 +835,12 @@ function addAttendanceFormListeners() {
     function updateAttendanceFormSections() {
         const selectedReason = document.querySelector('input[name="reasonType"]:checked').value;
         const reasonSections = {
-            '0': [], // 有給
-            '1': [substituteDateSection], // 代休
-            '2': [], // 欠勤
-            '3': [lateTimeSection], // 遅刻
-            '4': [earlyLeaveTimeSection], // 早退
-            '5': [], // 中抜け
-            '6': [] // 忌引き
+            '0': [], '1': [substituteDateSection], '2': [], '3': [lateTimeSection],
+            '4': [earlyLeaveTimeSection], '5': [middleLeaveTimeSection], '6': []
         };
-
-        // すべてのセクションを非表示にする
         Object.values(reasonSections).flat().forEach(section => {
             if (section) section.classList.add('hidden');
         });
-
-        // 選択された理由に対応するセクションを表示する
         if (reasonSections[selectedReason]) {
             reasonSections[selectedReason].forEach(section => {
                 if (section) section.classList.remove('hidden');
@@ -836,76 +848,88 @@ function addAttendanceFormListeners() {
         }
     }
 
-    function generateLateTimeOptions() {
-        lateTimeSelect.innerHTML = '<option value="">選択してください</option>';
-        for (let i = 1; i <= 60; i++) {
+    function generateTimeOptions(selectElement) {
+        selectElement.innerHTML = '<option value="">選択してください</option>';
+        for (let i = 5; i <= 60; i += 5) {
             const option = document.createElement('option');
             option.value = i;
             option.textContent = `${i}分`;
-            lateTimeSelect.appendChild(option);
+            selectElement.appendChild(option);
         }
     }
 
     if (submitButton) {
         submitButton.addEventListener('click', (event) => {
             event.preventDefault();
-            const contactDate = document.getElementById('contactDate').value;
+            
+            let isValid = true;
+
+            // 全てのエラーメッセージを一度非表示にする
+            document.querySelectorAll('#attendanceForm .error-message').forEach(el => el.classList.add('hidden'));
+
+            // 各入力値を取得
+            const contactDate = document.getElementById('contactDate');
+            const reason = document.getElementById('reason');
             const reasonType = document.querySelector('input[name="reasonType"]:checked').value;
-            const lateTime = document.getElementById('lateTime').value;
-            const earlyLeaveTime = document.getElementById('earlyLeaveTime').value;
-            const substituteDate = document.getElementById('substituteDate').value;
-            const reason = document.getElementById('reason').value;
+            const substituteDate = document.getElementById('substituteDate');
+            const lateTime = document.getElementById('lateTime');
+            const earlyLeaveTime = document.getElementById('earlyLeaveTime');
+            const middleLeaveTime = document.getElementById('middleLeaveTime');
 
-            // バリデーション
-            let hasError = false;
-            if (!contactDate) {
-                document.getElementById('contactDateError').textContent = '連絡日付は必須です。';
-                document.getElementById('contactDateError').classList.remove('hidden');
-                hasError = true;
-            } else {
-                document.getElementById('contactDateError').classList.add('hidden');
+            // エラー表示用のヘルパー関数
+            const showError = (inputElement, message) => {
+                const errorElement = document.getElementById(`${inputElement.id}Error`);
+                if (errorElement) {
+                    errorElement.textContent = message;
+                    errorElement.classList.remove('hidden');
+                }
+                isValid = false;
+            };
+
+            // 1. 日付のチェック
+            if (!contactDate.value.trim()) {
+                showError(contactDate, '日付を入力してください。');
+            }
+            // 2. 理由のチェック
+            if (!reason.value.trim()) {
+                showError(reason, '理由を入力してください。');
+            }
+            
+            // 3. 事由に応じたチェック
+            if (reasonType === '1' && !substituteDate.value.trim()) {
+                showError(substituteDate, '代休消化日を入力してください。');
+            }
+            if (reasonType === '3' && !lateTime.value) {
+                showError(lateTime, '遅刻時間を選択してください。');
+            }
+            if (reasonType === '4' && !earlyLeaveTime.value.trim()) {
+                showError(earlyLeaveTime, '早退時間を入力してください。');
+            }
+            if (reasonType === '5' && !middleLeaveTime.value) {
+                showError(middleLeaveTime, '中抜け時間を選択してください。');
             }
 
-            if (reasonType === '3' && !lateTime) {
-                openMessageModal('入力エラー', '遅刻時間が選択されていません。', () => {}, true);
+            // 全てのチェックをパスした場合のみ、確認モーダルを表示
+            if (!isValid) {
                 return;
             }
 
-            if (reasonType === '4' && !earlyLeaveTime) {
-                openMessageModal('入力エラー', '早退時間が入力されていません。', () => {}, true);
-                return;
-            }
-
-            if (reasonType === '1' && !substituteDate) {
-                openMessageModal('入力エラー', '代休消化日が入力されていません。', () => {}, true);
-                return;
-            }
-
-            if (hasError) {
-                openMessageModal('入力エラー', '入力に不備があります。必須項目を確認してください。', () => {}, true);
-                return;
-            }
-
-            // 確認モーダル用のコンテンツを生成
             const confirmHtml = `
                 <div class="space-y-2">
-                    <p><strong>連絡日付:</strong> ${contactDate}</p>
+                    <p><strong>日付:</strong> ${contactDate.value}</p>
                     <p><strong>事由:</strong> ${getReasonText(reasonType)}</p>
-                    ${reasonType === '3' ? `<p><strong>遅刻時間:</strong> ${lateTime}分</p>` : ''}
-                    ${reasonType === '4' ? `<p><strong>早退時間:</strong> ${earlyLeaveTime}</p>` : ''}
-                    ${reasonType === '1' ? `<p><strong>代休消化日:</strong> ${substituteDate}</p>` : ''}
-                    ${reason ? `<p><strong>理由:</strong> ${reason}</p>` : ''}
+                    ${reasonType === '3' ? `<p><strong>遅刻時間:</strong> ${lateTime.value}分</p>` : ''}
+                    ${reasonType === '4' ? `<p><strong>早退時間:</strong> ${earlyLeaveTime.value}</p>` : ''}
+                    ${reasonType === '5' ? `<p><strong>中抜け時間:</strong> ${middleLeaveTime.value}分</p>` : ''}
+                    ${reasonType === '1' ? `<p><strong>代休消化日:</strong> ${substituteDate.value}</p>` : ''}
+                    <p><strong>理由:</strong> ${reason.value}</p>
                 </div>
             `;
             openConfirmationModal('勤怠連絡の確認', confirmHtml, () => {
-                // 送信処理（ここでは成功メッセージを表示）
                 openMessageModal('送信成功', '勤怠連絡が正常に送信されました！', () => {
-                    // フォームをリセット
                     attendanceForm.reset();
-                    updateAttendanceFormSections(); // フォームリセット後にセクション表示も更新
+                    updateAttendanceFormSections();
                 });
-            }, () => {
-                // 修正ボタンが押された場合、何もしない
             });
         });
     }
