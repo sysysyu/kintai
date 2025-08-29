@@ -528,21 +528,21 @@ function loadWorkflowContent(workflowId) {
                             </div>
                             <div class="form-group">
                                 <label for="nearestStation" class="font-medium text-gray-700">最寄駅 <span class="text-red-500">*</span></label>
-                                <input type="text" id="nearestStation" name="nearestStation" class="w-full mt-1">
+                                <input type="text" id="nearestStation" name="nearestStation" class="w-full mt-1" placeholder="例: 新宿">
                                 <p class="error-message hidden" id="nearestStationError"></p>
                             </div>
                             <div class="form-group">
                                 <label for="destinationStation" class="font-medium text-gray-700">目的駅 <span class="text-red-500">*</span></label>
-                                <input type="text" id="destinationStation" name="destinationStation" class="w-full mt-1">
+                                <input type="text" id="destinationStation" name="destinationStation" class="w-full mt-1" placeholder="例: 東京">
                                 <p class="error-message hidden" id="destinationStationError"></p>
                             </div>
                             <div class="form-group">
                                 <label for="transitStation1" class="font-medium text-gray-700">経由駅 1</label>
-                                <input type="text" id="transitStation1" name="primary_transit_stations[]" class="w-full mt-1">
+                                <input type="text" id="transitStation1" name="primary_transit_stations[]" class="w-full mt-1" placeholder="例: 渋谷">
                             </div>
                             <div class="form-group hidden" id="transitStation2Wrapper">
                                 <label for="transitStation2" class="font-medium text-gray-700">経由駅 2</label>
-                                <input type="text" id="transitStation2" name="primary_transit_stations[]" class="w-full mt-1">
+                                <input type="text" id="transitStation2" name="primary_transit_stations[]" class="w-full mt-1" placeholder="例: 品川">
                             </div>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div class="form-group">
@@ -552,7 +552,7 @@ function loadWorkflowContent(workflowId) {
                                 </div>
                                 <div class="form-group">
                                     <label for="primaryAmount" class="font-medium text-gray-700">金額 <span class="text-red-500">*</span></label>
-                                    <input type="number" id="primaryAmount" name="primaryAmount" class="w-full mt-1">
+                                    <input type="number" id="primaryAmount" name="primaryAmount" class="w-full mt-1" placeholder="例: 15000">
                                     <p class="error-message hidden" id="primaryAmountError"></p>
                                 </div>
                             </div>
@@ -977,7 +977,6 @@ function addSubscriptionFormListeners() {
         if (e.key === 'Enter') {
             e.preventDefault();
             showTransit2();
-            // Optional: move focus to the next input
             document.getElementById('transitStation2').focus();
         }
     };
@@ -991,7 +990,7 @@ function addSubscriptionFormListeners() {
             <div class="p-4 border border-dashed border-gray-300 rounded-lg space-y-4 additional-route">
                 <div class="form-group">
                     <label class="font-medium text-gray-700">経由駅</label>
-                    <input type="text" name="additional_transit_station_${additionalRouteCount}" class="w-full mt-1">
+                    <input type="text" name="additional_transit_station_${additionalRouteCount}" class="w-full mt-1" placeholder="例: 池袋">
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div class="form-group">
@@ -1000,7 +999,7 @@ function addSubscriptionFormListeners() {
                     </div>
                     <div class="form-group">
                         <label class="font-medium text-gray-700">金額</label>
-                        <input type="number" name="additional_amount_${additionalRouteCount}" class="w-full mt-1">
+                        <input type="number" name="additional_amount_${additionalRouteCount}" class="w-full mt-1" placeholder="例: 12000">
                     </div>
                 </div>
             </div>
