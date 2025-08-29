@@ -955,6 +955,7 @@ function addSubscriptionFormListeners() {
     flatpickr(".purchase-date-picker", {
         dateFormat: "Y/m/d",
         allowInput: true,
+        minDate: "today"
     });
     
     flatpickr(".purchase-time-picker", {
@@ -985,6 +986,10 @@ function addSubscriptionFormListeners() {
     transitStation1Input.addEventListener('keydown', handleEnterKey);
 
     addCandidateBtn.addEventListener('click', () => {
+        if (additionalRouteCount >= 3) {
+            addCandidateBtn.disabled = true;
+            return;
+        }
         additionalRouteCount++;
         const newRouteHtml = `
             <div class="p-4 border border-dashed border-gray-300 rounded-lg space-y-4 additional-route">
@@ -1006,6 +1011,10 @@ function addSubscriptionFormListeners() {
         `;
         additionalRoutesContainer.insertAdjacentHTML('beforeend', newRouteHtml);
         
+        if (additionalRouteCount >= 3) {
+            addCandidateBtn.disabled = true;
+        }
+
         const newTimePickers = additionalRoutesContainer.querySelectorAll('.purchase-time-picker:not(.flatpickr-input)');
         flatpickr(newTimePickers, {
             enableTime: true,
@@ -1036,16 +1045,36 @@ function addSubscriptionFormListeners() {
         const destinationStation = document.getElementById('destinationStation');
         const primaryCommuteTime = document.getElementById('primaryCommuteTime');
         const primaryAmount = document.getElementById('primaryAmount');
+        const commuteTimeRegex = /^[0-9:]+$/;
+        const amountRegex = /^[0-9]+$/;
 
         if (!purchaseDate.value.trim()) showError('purchaseDate', '定期購入日を入力してください。');
         if (!nearestStation.value.trim()) showError('nearestStation', '最寄駅を入力してください。');
         if (!destinationStation.value.trim()) showError('destinationStation', '目的駅を入力してください。');
-        if (!primaryCommuteTime.value.trim()) showError('primaryCommuteTime', '通勤時間を入力してください。');
-        if (!primaryAmount.value.trim()) showError('primaryAmount', '金額を入力してください。');
+        
+        if (!primaryCommuteTime.value.trim()) {
+            showError('primaryCommuteTime', '通勤時間を入力してください。');
+        } else if (!commuteTimeRegex.test(primaryCommuteTime.value.trim())) {
+            showError('primaryCommuteTime', '通勤時間は半角数字とコロンのみで入力してください。');
+        }
+
+        if (!primaryAmount.value.trim()) {
+            showError('primaryAmount', '金額を入力してください。');
+        } else if (!amountRegex.test(primaryAmount.value.trim())) {
+            showError('primaryAmount', '金額は半角数字で入力してください。');
+        } else if (primaryAmount.value.trim().length > 5) {
+            showError('primaryAmount', '金額は5桁以内で入力してください。');
+        }
 
         if (!isValid) return;
 
         const formData = new FormData(subscriptionForm);
+        const transitStations = formData.getAll('primary_transit_stations[]').filter(s => s.trim() !== '');
+        let transitDisplay = 'なし';
+        if (transitStations.length > 0) {
+            transitDisplay = `<br>${transitStations.map((s, i) => `&nbsp;&nbsp;経由駅${i + 1}: ${s}`).join('<br>')}`;
+        }
+
         let confirmHtml = `
             <div class="space-y-3">
                 <p><strong>定期購入日:</strong> ${formData.get('purchaseDate')}</p>
@@ -1053,7 +1082,7 @@ function addSubscriptionFormListeners() {
                 <ul class="list-disc list-inside space-y-1 pl-2">
                     <li><strong>最寄駅:</strong> ${formData.get('nearestStation')}</li>
                     <li><strong>目的駅:</strong> ${formData.get('destinationStation')}</li>
-                    <li><strong>経由駅:</strong> ${formData.getAll('primary_transit_stations[]').filter(s => s).join(', ') || 'なし'}</li>
+                    <li><strong>経由駅:</strong> ${transitDisplay}</li>
                     <li><strong>通勤時間:</strong> ${formData.get('primaryCommuteTime')}</li>
                     <li><strong>金額:</strong> ${formData.get('primaryAmount')} 円</li>
                 </ul>
@@ -1086,6 +1115,8 @@ function addSubscriptionFormListeners() {
                 subscriptionForm.reset();
                 additionalRoutesContainer.innerHTML = '';
                 transitStation2Wrapper.classList.add('hidden');
+                addCandidateBtn.disabled = false;
+                
                 transitStation1Input.removeEventListener('blur', showTransit2);
                 transitStation1Input.removeEventListener('keydown', handleEnterKey);
                 transitStation1Input.addEventListener('blur', showTransit2);
