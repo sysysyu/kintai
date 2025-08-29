@@ -515,63 +515,62 @@ function loadWorkflowContent(workflowId) {
                 </div>
             `;
             break;
-        case 'wf2_purchase': // 定期購入
+        case 'wf2_purchase':
             contentHtml = `
                 <div class="bg-white p-6 md:p-8 rounded-lg shadow-xl w-full max-w-2xl mx-auto">
                     <h1 class="text-2xl md:text-3xl font-bold text-gray-800 mb-6 text-center">定期購入</h1>
                     <form id="subscription-form" class="space-y-6">
-                        <div class="form-group">
-                            <label for="subscriptionDate">定期購入日:</label>
-                            <input type="date" id="subscriptionDate" name="subscriptionDate" required class="w-full">
-                            <div class="error-message" id="subscriptionDate-error"></div>
-                        </div>
-                        <div class="form-group">
-                            <label for="nearestStation">最寄り駅:</label>
-                            <input type="text" id="nearestStation" name="nearestStation" required class="w-full">
-                            <div class="error-message" id="nearestStation-error"></div>
-                        </div>
-                        <div class="form-group">
-                            <label for="destinationStation">目的駅:</label>
-                            <input type="text" id="destinationStation" name="destinationStation" class="w-full">
-                        </div>
-                        <div id="route-options" class="space-y-4">
-                            <div class="route-option p-4 border border-dashed border-gray-300 rounded-md">
-                                <h3 class="text-lg font-semibold mb-2">候補 1</h3>
+
+                        <div class="p-4 border border-gray-300 rounded-lg space-y-4">
+                            <h3 class="text-lg font-semibold text-gray-700">主経路</h3>
+                            <div class="form-group">
+                                <label for="nearestStation" class="font-medium text-gray-700">最寄駅 <span class="text-red-500">*</span></label>
+                                <input type="text" id="nearestStation" name="nearestStation" class="w-full mt-1">
+                                <p class="error-message hidden" id="nearestStationError"></p>
+                            </div>
+                            <div class="form-group">
+                                <label for="destinationStation" class="font-medium text-gray-700">目的駅 <span class="text-red-500">*</span></label>
+                                <input type="text" id="destinationStation" name="destinationStation" class="w-full mt-1">
+                                <p class="error-message hidden" id="destinationStationError"></p>
+                            </div>
+                            <div class="form-group">
+                                <label for="transitStation1" class="font-medium text-gray-700">経由駅 1</label>
+                                <input type="text" id="transitStation1" name="primary_transit_stations[]" class="w-full mt-1">
+                            </div>
+                            <div class="form-group hidden" id="transitStation2Wrapper">
+                                <label for="transitStation2" class="font-medium text-gray-700">経由駅 2</label>
+                                <input type="text" id="transitStation2" name="primary_transit_stations[]" class="w-full mt-1">
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div class="form-group">
-                                    <label for="transitStation1">経由駅:</label>
-                                    <input type="text" id="transitStation1" name="transitStation[]" class="w-full">
-                                </div>
-                                <div class="form-group">
-                                    <label for="commuteTime1">通勤時間:</label>
-                                    <select id="commuteTime1" name="commuteTime[]" required class="w-full">
+                                    <label for="primaryCommuteTime" class="font-medium text-gray-700">通勤時間 <span class="text-red-500">*</span></label>
+                                    <select id="primaryCommuteTime" name="primaryCommuteTime" class="w-full mt-1">
                                         <option value="">選択してください</option>
                                         <option value="15分未満">15分未満</option>
                                         <option value="15分-30分">15分-30分</option>
                                         <option value="30分-1時間">30分-1時間</option>
                                         <option value="1時間以上">1時間以上</option>
                                     </select>
-                                    <div class="error-message" id="commuteTime1-error"></div>
+                                    <p class="error-message hidden" id="primaryCommuteTimeError"></p>
                                 </div>
                                 <div class="form-group">
-                                    <label for="amount1">金額:</label>
-                                    <input type="number" id="amount1" name="amount[]" required class="w-full">
-                                    <div class="error-message" id="amount1-error"></div>
+                                    <label for="primaryAmount" class="font-medium text-gray-700">金額 <span class="text-red-500">*</span></label>
+                                    <input type="number" id="primaryAmount" name="primaryAmount" class="w-full mt-1">
+                                    <p class="error-message hidden" id="primaryAmountError"></p>
                                 </div>
                             </div>
                         </div>
+
+                        <div id="additional-routes-container" class="space-y-4"></div>
+
                         <div class="flex justify-center space-x-4 mt-6">
                             <button type="button" id="addCandidateBtn"
                                     class="px-6 py-3 bg-blue-600 text-white font-semibold rounded-md shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-300 ease-in-out">
-                                候補数追加
+                                候補経路を追加
                             </button>
                             <button type="submit"
                                     class="px-6 py-3 bg-green-600 text-white font-semibold rounded-md shadow-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition duration-300 ease-in-out">
                                 送信確認
-                            </button>
-                        </div>
-                        <div class="flex justify-center mt-4">
-                            <button type="button" class="back-to-workflow-btn px-6 py-3 bg-gray-600 text-white font-semibold rounded-md shadow-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition duration-300 ease-in-out">
-                                ワークフローに戻る
                             </button>
                         </div>
                     </form>
@@ -950,129 +949,128 @@ function getReasonText(reasonValue) {
 
 function addSubscriptionFormListeners() {
     const subscriptionForm = document.getElementById('subscription-form');
-    const routeOptionsContainer = document.getElementById('route-options');
+    const transitStation1Input = document.getElementById('transitStation1');
+    const transitStation2Wrapper = document.getElementById('transitStation2Wrapper');
     const addCandidateBtn = document.getElementById('addCandidateBtn');
-    let candidateCount = 1;
+    const additionalRoutesContainer = document.getElementById('additional-routes-container');
+    let additionalRouteCount = 0;
 
-    // ワークフローに戻るボタンのイベントリスナー
-    const backToWorkflowBtn = document.querySelector('#subscription-form .back-to-workflow-btn');
-    if (backToWorkflowBtn) {
-        backToWorkflowBtn.addEventListener('click', () => {
-            document.getElementById('workflowType').value = "";
-            renderWorkflowScreen();
-        });
-    }
+    // 経由駅1が入力されたら経由駅2を表示する処理
+    const handleTransitInput = () => {
+        if (transitStation1Input.value.trim() !== '') {
+            transitStation2Wrapper.classList.remove('hidden');
+            // 一度表示したら、このイベントは不要なので削除
+            transitStation1Input.removeEventListener('input', handleTransitInput);
+        }
+    };
+    transitStation1Input.addEventListener('input', handleTransitInput);
 
-
+    // 「候補経路を追加」ボタンの処理
     addCandidateBtn.addEventListener('click', () => {
-        candidateCount++;
-        const newCandidateHtml = `
-            <div class="route-option p-4 border border-dashed border-gray-300 rounded-md">
-                <h3 class="text-lg font-semibold mb-2">候補 ${candidateCount}</h3>
+        additionalRouteCount++;
+        const newRouteHtml = `
+            <div class="p-4 border border-dashed border-gray-300 rounded-lg space-y-4 additional-route">
+                <h3 class="text-lg font-semibold text-gray-600">候補経路 ${additionalRouteCount}</h3>
                 <div class="form-group">
-                    <label for="transitStation${candidateCount}">経由駅:</label>
-                    <input type="text" id="transitStation${candidateCount}" name="transitStation[]" class="w-full">
+                    <label class="font-medium text-gray-700">経由駅</label>
+                    <input type="text" name="additional_transit_station_${additionalRouteCount}" class="w-full mt-1">
                 </div>
-                <div class="form-group">
-                    <label for="commuteTime${candidateCount}">通勤時間:</label>
-                    <select id="commuteTime${candidateCount}" name="commuteTime[]" required class="w-full">
-                        <option value="">選択してください</option>
-                        <option value="15分未満">15分未満</option>
-                        <option value="15分-30分">15分-30分</option>
-                        <option value="30分-1時間">30分-1時間</option>
-                        <option value="1時間以上">1時間以上</option>
-                    </select>
-                    <div class="error-message" id="commuteTime${candidateCount}-error"></div>
-                </div>
-                <div class="form-group">
-                    <label for="amount${candidateCount}">金額:</label>
-                    <input type="number" id="amount${candidateCount}" name="amount[]" required class="w-full">
-                    <div class="error-message" id="amount${candidateCount}-error"></div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="form-group">
+                        <label class="font-medium text-gray-700">通勤時間</label>
+                        <select name="additional_commute_time_${additionalRouteCount}" class="w-full mt-1">
+                            <option value="">選択してください</option>
+                            <option value="15分未満">15分未満</option>
+                            <option value="15分-30分">15分-30分</option>
+                            <option value="30分-1時間">30分-1時間</option>
+                            <option value="1時間以上">1時間以上</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="font-medium text-gray-700">金額</label>
+                        <input type="number" name="additional_amount_${additionalRouteCount}" class="w-full mt-1">
+                    </div>
                 </div>
             </div>
         `;
-        routeOptionsContainer.insertAdjacentHTML('beforeend', newCandidateHtml);
+        additionalRoutesContainer.insertAdjacentHTML('beforeend', newRouteHtml);
     });
 
+    // フォーム送信時の処理
     subscriptionForm.addEventListener('submit', (e) => {
         e.preventDefault();
-
-        // エラーメッセージをリセット
-        document.querySelectorAll('.error-message').forEach(el => el.textContent = '');
-
-        const formData = new FormData(subscriptionForm);
         let isValid = true;
+        
+        // エラーメッセージをリセット
+        document.querySelectorAll('#subscription-form .error-message').forEach(el => el.classList.add('hidden'));
 
-        const subscriptionDate = formData.get('subscriptionDate');
-        const nearestStation = formData.get('nearestStation');
-        if (!subscriptionDate) {
-            document.getElementById('subscriptionDate-error').textContent = '定期購入日は必須です。';
-            isValid = false;
-        }
-        if (!nearestStation) {
-            document.getElementById('nearestStation-error').textContent = '最寄り駅は必須です。';
-            isValid = false;
-        }
-
-        const transitStations = formData.getAll('transitStation[]');
-        const commuteTimes = formData.getAll('commuteTime[]');
-        const amounts = formData.getAll('amount[]');
-
-        for (let i = 0; i < amounts.length; i++) {
-            if (!amounts[i]) {
-                document.getElementById(`amount${i + 1}-error`).textContent = `候補 ${i + 1} の金額は必須です。`;
-                isValid = false;
+        // エラー表示用のヘルパー関数
+        const showError = (elementId, message) => {
+            const errorElement = document.getElementById(elementId + "Error");
+            if (errorElement) {
+                errorElement.textContent = message;
+                errorElement.classList.remove('hidden');
             }
-            if (!commuteTimes[i]) {
-                document.getElementById(`commuteTime${i + 1}-error`).textContent = `候補 ${i + 1} の通勤時間は必須です。`;
-                isValid = false;
-            }
-        }
+            isValid = false;
+        };
+        
+        // 主経路の必須項目チェック
+        const nearestStation = document.getElementById('nearestStation');
+        const destinationStation = document.getElementById('destinationStation');
+        const primaryCommuteTime = document.getElementById('primaryCommuteTime');
+        const primaryAmount = document.getElementById('primaryAmount');
 
-        if (!isValid) {
-            openMessageModal('入力エラー', '入力に不備があります。必須項目を確認してください。', () => {}, true);
-            return;
-        }
+        if (!nearestStation.value.trim()) showError('nearestStation', '最寄駅を入力してください。');
+        if (!destinationStation.value.trim()) showError('destinationStation', '目的駅を入力してください。');
+        if (!primaryCommuteTime.value) showError('primaryCommuteTime', '通勤時間を選択してください。');
+        if (!primaryAmount.value) showError('primaryAmount', '金額を入力してください。');
 
+        if (!isValid) return;
+
+        // 確認モーダル用のデータ収集とHTML生成
+        const formData = new FormData(subscriptionForm);
         let confirmHtml = `
-            <div class="space-y-2">
-                <p><strong>定期購入日:</strong> ${subscriptionDate}</p>
-                <p><strong>最寄り駅:</strong> ${nearestStation}</p>
-                <p><strong>目的駅:</strong> ${formData.get('destinationStation')}</p>
-                <h3 class="font-bold mt-4">購入経路:</h3>
+            <div class="space-y-3">
+                <h4 class="font-bold text-gray-800">主経路</h4>
+                <ul class="list-disc list-inside space-y-1 pl-2">
+                    <li><strong>最寄駅:</strong> ${formData.get('nearestStation')}</li>
+                    <li><strong>目的駅:</strong> ${formData.get('destinationStation')}</li>
+                    <li><strong>経由駅:</strong> ${formData.getAll('primary_transit_stations[]').filter(s => s).join(', ') || 'なし'}</li>
+                    <li><strong>通勤時間:</strong> ${formData.get('primaryCommuteTime')}</li>
+                    <li><strong>金額:</strong> ${formData.get('primaryAmount')} 円</li>
+                </ul>
             </div>
-            <ul class="list-disc list-inside space-y-2 mt-2">
         `;
-        for (let i = 0; i < amounts.length; i++) {
-            confirmHtml += `
-                <li>
-                    <strong>候補 ${i + 1}:</strong><br>
-                    経由駅: ${transitStations[i] || 'なし'}<br>
-                    通勤時間: ${commuteTimes[i]}<br>
-                    金額: ${amounts[i]}円
-                </li>
-            `;
+
+        const additionalRoutes = additionalRoutesContainer.querySelectorAll('.additional-route');
+        if (additionalRoutes.length > 0) {
+            confirmHtml += `<div class="mt-4 space-y-3">`;
+            additionalRoutes.forEach((route, index) => {
+                const routeNum = index + 1;
+                const transit = formData.get(`additional_transit_station_${routeNum}`) || 'なし';
+                const time = formData.get(`additional_commute_time_${routeNum}`) || '未選択';
+                const amount = formData.get(`additional_amount_${routeNum}`) || '未入力';
+
+                confirmHtml += `
+                    <h4 class="font-bold text-gray-800">候補経路 ${routeNum}</h4>
+                    <ul class="list-disc list-inside space-y-1 pl-2">
+                        <li><strong>経由駅:</strong> ${transit}</li>
+                        <li><strong>通勤時間:</strong> ${time}</li>
+                        <li><strong>金額:</strong> ${amount ? amount + ' 円' : '未入力'}</li>
+                    </ul>
+                `;
+            });
+            confirmHtml += `</div>`;
         }
-        confirmHtml += '</ul>';
 
         openConfirmationModal('定期購入申請の確認', confirmHtml, () => {
-            // 送信処理
-            const dataToSend = {
-                subscriptionDate: subscriptionDate,
-                nearestStation: nearestStation,
-                destinationStation: formData.get('destinationStation'),
-                routes: amounts.map((amount, i) => ({
-                    transitStation: transitStations[i] || null,
-                    commuteTime: commuteTimes[i],
-                    amount: amount
-                }))
-            };
-            console.log('送信データ:', dataToSend);
             openMessageModal('送信成功', '定期購入申請を最終送信しました！', () => {
+                // フォームをリセットし、動的に追加した要素もクリア
                 subscriptionForm.reset();
+                additionalRoutesContainer.innerHTML = '';
+                transitStation2Wrapper.classList.add('hidden');
+                transitStation1Input.addEventListener('input', handleTransitInput); // イベントリスナーを再登録
             });
-        }, () => {
-            // Cancel handler - no action needed
         });
     });
 }
