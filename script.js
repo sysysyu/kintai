@@ -546,8 +546,8 @@ function loadWorkflowContent(workflowId) {
                             </div>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div class="form-group">
-                                    <label for="primaryCommuteTime" class="font-medium text-gray-700">通勤時間(分) <span class="text-red-500">*</span></label>
-                                    <input type="number" id="primaryCommuteTime" name="primaryCommuteTime" class="w-full mt-1" placeholder="例: 35">
+                                    <label for="primaryCommuteTime" class="font-medium text-gray-700">通勤時間 <span class="text-red-500">*</span></label>
+                                    <input type="text" id="primaryCommuteTime" name="primaryCommuteTime" class="w-full mt-1 purchase-time-picker" placeholder="例: 1:30">
                                     <p class="error-message hidden" id="primaryCommuteTimeError"></p>
                                 </div>
                                 <div class="form-group">
@@ -956,6 +956,14 @@ function addSubscriptionFormListeners() {
         dateFormat: "Y/m/d",
         allowInput: true,
     });
+    
+    flatpickr(".purchase-time-picker", {
+        enableTime: true,
+        noCalendar: true,
+        dateFormat: "H:i",
+        time_24hr: true,
+        allowInput: true,
+    });
 
     const showTransit2 = () => {
         if (transitStation1Input.value.trim() !== '') {
@@ -969,6 +977,8 @@ function addSubscriptionFormListeners() {
         if (e.key === 'Enter') {
             e.preventDefault();
             showTransit2();
+            // Optional: move focus to the next input
+            document.getElementById('transitStation2').focus();
         }
     };
 
@@ -985,8 +995,8 @@ function addSubscriptionFormListeners() {
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div class="form-group">
-                        <label class="font-medium text-gray-700">通勤時間(分)</label>
-                        <input type="number" name="additional_commute_time_${additionalRouteCount}" class="w-full mt-1" placeholder="例: 35">
+                        <label class="font-medium text-gray-700">通勤時間</label>
+                        <input type="text" name="additional_commute_time_${additionalRouteCount}" class="w-full mt-1 purchase-time-picker" placeholder="例: 1:30">
                     </div>
                     <div class="form-group">
                         <label class="font-medium text-gray-700">金額</label>
@@ -996,6 +1006,15 @@ function addSubscriptionFormListeners() {
             </div>
         `;
         additionalRoutesContainer.insertAdjacentHTML('beforeend', newRouteHtml);
+        
+        const newTimePickers = additionalRoutesContainer.querySelectorAll('.purchase-time-picker:not(.flatpickr-input)');
+        flatpickr(newTimePickers, {
+            enableTime: true,
+            noCalendar: true,
+            dateFormat: "H:i",
+            time_24hr: true,
+            allowInput: true,
+        });
     });
 
     subscriptionForm.addEventListener('submit', (e) => {
@@ -1036,7 +1055,7 @@ function addSubscriptionFormListeners() {
                     <li><strong>最寄駅:</strong> ${formData.get('nearestStation')}</li>
                     <li><strong>目的駅:</strong> ${formData.get('destinationStation')}</li>
                     <li><strong>経由駅:</strong> ${formData.getAll('primary_transit_stations[]').filter(s => s).join(', ') || 'なし'}</li>
-                    <li><strong>通勤時間:</strong> ${formData.get('primaryCommuteTime')} 分</li>
+                    <li><strong>通勤時間:</strong> ${formData.get('primaryCommuteTime')}</li>
                     <li><strong>金額:</strong> ${formData.get('primaryAmount')} 円</li>
                 </ul>
             </div>
@@ -1055,7 +1074,7 @@ function addSubscriptionFormListeners() {
                     <h4 class="font-bold text-gray-800">候補経路 ${routeNum}</h4>
                     <ul class="list-disc list-inside space-y-1 pl-2">
                         <li><strong>経由駅:</strong> ${transit}</li>
-                        <li><strong>通勤時間:</strong> ${time ? time + ' 分' : '未入力'}</li>
+                        <li><strong>通勤時間:</strong> ${time}</li>
                         <li><strong>金額:</strong> ${amount ? amount + ' 円' : '未入力'}</li>
                     </ul>
                 `;
